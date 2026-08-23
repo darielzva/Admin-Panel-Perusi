@@ -1,0 +1,44 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install 7-Zip (p7zip)
+      run: brew install p7zip
+
+    - name: Locate Xcode iOS SDK & Tools
+      run: |
+        echo "IOS_SDK=$(xcrun --sdk iphoneos --show-sdk-path)" >> $GITHUB_ENV
+        echo "FF_TOOLS_ROOT=$(dirname $(xcrun --find clang))" >> $GITHUB_ENV
+
+    - name: Run Build Script (Python Equivalent / PowerShell Core)
+      shell: pwsh
+      run: |
+        # Ejecutamos tu script original de PowerShell adaptado al entorno macOS
+        cd app/ff_manager
+        # Aseguramos que 7z apunte a 7z de Homebrew
+        Set-Alias 7z /opt/homebrew/bin/7z -Force -ErrorAction SilentlyContinue
+        
+        # Ejecutamos el script de compilación
+        ./build.ps1 -Offline
+    
+    - name: Upload Generated IPA Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: RobotExternal-Unsigned-IPA
+        path: app/ff_manager/release/*.ipa

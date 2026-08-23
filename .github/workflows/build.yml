@@ -24,7 +24,18 @@ jobs:
     - name: Locate Xcode iOS SDK & Tools
       run: |
         echo "IOS_SDK=$(xcrun --sdk iphoneos --show-sdk-path)" >> $GITHUB_ENV
-        echo "FF_TOOLS_ROOT=$(dirname $(xcrun --find clang))" >> $GITHUB_ENV
+        
+        # Creamos una carpeta .tools local y mapeamos los binarios de macOS con nombres .exe para que el script de Windows los encuentre
+        mkdir -p app/ff_manager/.tools
+        TOOLS_DIR="$(dirname $(xcrun --find clang))"
+        
+        ln -sf "$TOOLS_DIR/clang" app/ff_manager/.tools/clang.exe
+        ln -sf "$TOOLS_DIR/ld64.lld" app/ff_manager/.tools/ld64.lld.exe
+        ln -sf "$TOOLS_DIR/llvm-lipo" app/ff_manager/.tools/llvm-lipo.exe
+        ln -sf "$TOOLS_DIR/llvm-install-name-tool" app/ff_manager/.tools/llvm-install-name-tool.exe
+        ln -sf "$TOOLS_DIR/llvm-strip" app/ff_manager/.tools/llvm-strip.exe
+        
+        echo "FF_TOOLS_ROOT=$GITHUB_WORKSPACE/app/ff_manager/.tools" >> $GITHUB_ENV
 
     - name: Run Build Script
       shell: pwsh

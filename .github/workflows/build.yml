@@ -30,13 +30,11 @@ jobs:
         
         mkdir -p app/ff_manager/.tools
         
-        # Localizamos las herramientas correctamente en el ecosistema de macOS
+        # Enlazamos las herramientas mapeando los nombres exactos que exige el script de Windows
         ln -sf $(xcrun --find clang) app/ff_manager/.tools/clang.exe
-        ln -sf $(xcrun --find ld64.lld) app/ff_manager/.tools/ld64.lld.exe
+        ln -sf $(xcrun --find clang) app/ff_manager/.tools/ld64.lld.exe
         ln -sf $(xcrun --find lipo) app/ff_manager/.tools/llvm-lipo.exe
         ln -sf $(xcrun --find strip) app/ff_manager/.tools/llvm-strip.exe
-        
-        # Para install-name-tool usamos el nativo del sistema si no está en la ruta de xcode
         ln -sf $(which install_name_tool) app/ff_manager/.tools/llvm-install-name-tool.exe
         
         echo "FF_TOOLS_ROOT=$GITHUB_WORKSPACE/app/ff_manager/.tools" >> $GITHUB_ENV

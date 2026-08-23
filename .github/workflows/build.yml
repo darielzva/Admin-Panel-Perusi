@@ -37,7 +37,7 @@ jobs:
         # Enlazamos ld nativo de Apple directamente como ld64.lld.exe
         ln -sf $(xcrun --find ld) app/ff_manager/.tools/ld64.lld.exe
 
-        # Creamos el wrapper para llvm-install-name-tool.exe
+        # Wrapper para llvm-install-name-tool.exe
         cat << 'EOF' > app/ff_manager/.tools/llvm-install-name-tool.exe
         #!/usr/bin/env python3
         import sys
@@ -48,7 +48,7 @@ jobs:
         EOF
         chmod +x app/ff_manager/.tools/llvm-install-name-tool.exe
 
-        # Creamos el wrapper para llvm-strip.exe
+        # Wrapper para llvm-strip.exe
         cat << 'EOF' > app/ff_manager/.tools/llvm-strip.exe
         #!/usr/bin/env python3
         import sys
@@ -62,14 +62,15 @@ jobs:
         
         echo "FF_TOOLS_ROOT=$GITHUB_WORKSPACE/app/ff_manager/.tools" >> $GITHUB_ENV
 
-    - name: Run Build Script
+    - name: Run Build Script (Signer Compatible)
       shell: pwsh
       run: |
         cd app/ff_manager
+        # Ejecutamos sin -Offline para que genere el manifiesto y la estructura completa para firmar
         ./build.ps1
     
     - name: Upload Generated IPA Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: RobotExternal-Unsigned-IPA
+        name: RobotExternal-Signer-Compatible-IPA
         path: app/ff_manager/release/*.ipa

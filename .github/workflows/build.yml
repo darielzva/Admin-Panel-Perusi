@@ -18,10 +18,10 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install 7-Zip (p7zip)
+    - name: Install Dependencies & Lief
       run: |
         brew install p7zip
-        # Creamos un enlace para que el comando 7z.exe apunte al binario de Mac
+        pip install lief
         sudo ln -sf /opt/homebrew/bin/7z /usr/local/bin/7z.exe || sudo ln -sf /usr/local/bin/7z /usr/local/bin/7z.exe
 
     - name: Locate Xcode iOS SDK & Tools
@@ -29,13 +29,15 @@ jobs:
         echo "IOS_SDK=$(xcrun --sdk iphoneos --show-sdk-path)" >> $GITHUB_ENV
         
         mkdir -p app/ff_manager/.tools
-        TOOLS_DIR="$(dirname $(xcrun --find clang))"
         
-        ln -sf "$TOOLS_DIR/clang" app/ff_manager/.tools/clang.exe
-        ln -sf "$TOOLS_DIR/ld64.lld" app/ff_manager/.tools/ld64.lld.exe
-        ln -sf "$TOOLS_DIR/llvm-lipo" app/ff_manager/.tools/llvm-lipo.exe
-        ln -sf "$TOOLS_DIR/llvm-install-name-tool" app/ff_manager/.tools/llvm-install-name-tool.exe
-        ln -sf "$TOOLS_DIR/llvm-strip" app/ff_manager/.tools/llvm-strip.exe
+        # Localizamos las herramientas correctamente en el ecosistema de macOS
+        ln -sf $(xcrun --find clang) app/ff_manager/.tools/clang.exe
+        ln -sf $(xcrun --find ld64.lld) app/ff_manager/.tools/ld64.lld.exe
+        ln -sf $(xcrun --find lipo) app/ff_manager/.tools/llvm-lipo.exe
+        ln -sf $(xcrun --find strip) app/ff_manager/.tools/llvm-strip.exe
+        
+        # Para install-name-tool usamos el nativo del sistema si no está en la ruta de xcode
+        ln -sf $(which install_name_tool) app/ff_manager/.tools/llvm-install-name-tool.exe
         
         echo "FF_TOOLS_ROOT=$GITHUB_WORKSPACE/app/ff_manager/.tools" >> $GITHUB_ENV
 

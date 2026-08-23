@@ -30,33 +30,60 @@ jobs:
         
         mkdir -p app/ff_manager/.tools
         
-        # Enlazamos las herramientas principales de compilación
+        # Enlazamos clang y lipo de forma directa
         ln -sf $(xcrun --find clang) app/ff_manager/.tools/clang.exe
-        ln -sf $(xcrun --find clang) app/ff_manager/.tools/ld64.lld.exe
         ln -sf $(xcrun --find lipo) app/ff_manager/.tools/llvm-lipo.exe
         
-        # Creamos un script wrapper en Python para llvm-install-name-tool.exe
-        cat << 'EOF' > app/ff_manager/.tools/llvm-install-name-tool.exe
+        # Creamos un script wrapper en Python para ld64.lld.exe que actúe como un enlazador compatible con Apple/Clang
+        cat << 'EOF' > app/ff_manager/.tools/ld64.lld.exe
         #!/usr/bin/env python3
         import sys
         import subprocess
 
+        # Cuando el script de PowerShell llama al enlazador, le pasa banderas de ld.
+        # Las traducimos para que clang las acepte correctamente en macOS.
         args = sys.argv[1:]
-        # Ejecutamos install_name_tool nativo de macOS
+        
+        # Reconstruimos la llamada usando clang como frontend de enlace para iOS
+        new_args = ['clang', '-target', 'arm64-apple-ios15.0']
+        
+        skip_next = False
+        for i, arg in enumerate(args):
+            if skip_next:
+                skip_next = False
+                continue
+            if arg == '-platform_version':
+                skip_next = True # saltamos 'ios' y las versiones
+                continue
+            if arg in ['ios', '15.0']:
+                continue
+            if arg == '-adhoc_codesign':
+                continue # clang maneja la firma ad-hoc por defecto o se ignora en este paso
+                
+            new_args.append(arg)
+
+        sys.exit(subprocess.run(new_args).returncode)
+        EOF
+        chmod +x app/ff_manager/.tools/ld64.lld.exe
+
+        # Creamos el wrapper para llvm-install-name-tool.exe
+        cat << 'EOF' > app/ff_manager/.tools/llvm-install-name-tool.exe
+        #!/usr/bin/env python3
+        import sys
+        import subprocess
+        args = sys.argv[1:]
         cmd = ['install_name_tool'] + args
         sys.exit(subprocess.run(cmd).returncode)
         EOF
         chmod +x app/ff_manager/.tools/llvm-install-name-tool.exe
 
-        # Creamos el script wrapper en Python para llvm-strip.exe
+        # Creamos el wrapper para llvm-strip.exe
         cat << 'EOF' > app/ff_manager/.tools/llvm-strip.exe
         #!/usr/bin/env python3
         import sys
         import subprocess
-
         args = sys.argv[1:]
         new_args = ['-S' if arg == '--strip-debug' else arg for arg in args]
-        
         cmd = ['strip'] + new_args
         sys.exit(subprocess.run(cmd).returncode)
         EOF

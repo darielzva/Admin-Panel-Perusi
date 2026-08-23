@@ -30,12 +30,27 @@ jobs:
         
         mkdir -p app/ff_manager/.tools
         
-        # Enlazamos las herramientas mapeando los nombres exactos que exige el script de Windows
+        # Enlazamos las herramientas principales
         ln -sf $(xcrun --find clang) app/ff_manager/.tools/clang.exe
         ln -sf $(xcrun --find clang) app/ff_manager/.tools/ld64.lld.exe
         ln -sf $(xcrun --find lipo) app/ff_manager/.tools/llvm-lipo.exe
-        ln -sf $(xcrun --find strip) app/ff_manager/.tools/llvm-strip.exe
         ln -sf $(which install_name_tool) app/ff_manager/.tools/llvm-install-name-tool.exe
+        
+        # Creamos un script wrapper en Python para llvm-strip.exe que traduzca --strip-debug a sintaxis de Mac
+        cat << 'EOF' > app/ff_manager/.tools/llvm-strip.exe
+        #!/usr/bin/env python3
+        import sys
+        import subprocess
+
+        args = sys.argv[1:]
+        # Reemplazamos --strip-debug por -S (equivalente en macOS)
+        new_args = ['-S' if arg == '--strip-debug' else arg for arg in args]
+        
+        # Ejecutamos el strip nativo de macOS
+        cmd = ['strip'] + new_args
+        sys.exit(subprocess.run(cmd).returncode)
+        EOF
+        chmod +x app/ff_manager/.tools/llvm-strip.exe
         
         echo "FF_TOOLS_ROOT=$GITHUB_WORKSPACE/app/ff_manager/.tools" >> $GITHUB_ENV
 

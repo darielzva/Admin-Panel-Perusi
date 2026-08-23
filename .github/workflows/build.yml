@@ -34,17 +34,13 @@ jobs:
         ln -sf $(xcrun --find clang) app/ff_manager/.tools/clang.exe
         ln -sf $(xcrun --find lipo) app/ff_manager/.tools/llvm-lipo.exe
         
-        # Creamos un script wrapper en Python para ld64.lld.exe que actúe como un enlazador compatible con Apple/Clang
+        # Creamos un script wrapper robusto en Python para ld64.lld.exe
         cat << 'EOF' > app/ff_manager/.tools/ld64.lld.exe
         #!/usr/bin/env python3
         import sys
         import subprocess
 
-        # Cuando el script de PowerShell llama al enlazador, le pasa banderas de ld.
-        # Las traducimos para que clang las acepte correctamente en macOS.
         args = sys.argv[1:]
-        
-        # Reconstruimos la llamada usando clang como frontend de enlace para iOS
         new_args = ['clang', '-target', 'arm64-apple-ios15.0']
         
         skip_next = False
@@ -53,12 +49,18 @@ jobs:
                 skip_next = False
                 continue
             if arg == '-platform_version':
-                skip_next = True # saltamos 'ios' y las versiones
+                skip_next = True
                 continue
             if arg in ['ios', '15.0']:
                 continue
             if arg == '-adhoc_codesign':
-                continue # clang maneja la firma ad-hoc por defecto o se ignora en este paso
+                continue
+            # Aseguramos que -syslibroot conserve su ruta correcta hacia el SDK de iOS
+            if arg == '-syslibroot':
+                new_args.append(arg)
+                new_args.append(args[i+1])
+                skip_next = True
+                continue
                 
             new_args.append(arg)
 
@@ -66,7 +68,7 @@ jobs:
         EOF
         chmod +x app/ff_manager/.tools/ld64.lld.exe
 
-        # Creamos el wrapper para llvm-install-name-tool.exe
+        # Creamos los wrappers para install-name-tool y strip
         cat << 'EOF' > app/ff_manager/.tools/llvm-install-name-tool.exe
         #!/usr/bin/env python3
         import sys
@@ -77,7 +79,6 @@ jobs:
         EOF
         chmod +x app/ff_manager/.tools/llvm-install-name-tool.exe
 
-        # Creamos el wrapper para llvm-strip.exe
         cat << 'EOF' > app/ff_manager/.tools/llvm-strip.exe
         #!/usr/bin/env python3
         import sys

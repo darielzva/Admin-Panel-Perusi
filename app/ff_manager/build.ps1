@@ -174,7 +174,11 @@ if ($Offline) {
 
 Push-Location $Build
 try {
-    & $SevenZip a -tzip -mx=9 $Ipa "Payload" | Out-Null
+    # Eliminamos cualquier archivo zip previo si existiera
+    if (Test-Path -LiteralPath $Ipa) { Remove-Item -LiteralPath $Ipa -Force }
+    
+    # Comprimimos usando el comando nativo de zip de macOS o 7z asegurando la estructura correcta
+    & zip -r -y $Ipa "Payload" | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "IPA packaging failed ($LASTEXITCODE)" }
 } finally {
     Pop-Location

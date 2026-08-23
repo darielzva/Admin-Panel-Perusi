@@ -19,13 +19,15 @@ jobs:
         python-version: '3.10'
 
     - name: Install 7-Zip (p7zip)
-      run: brew install p7zip
+      run: |
+        brew install p7zip
+        # Creamos un enlace para que el comando 7z.exe apunte al binario de Mac
+        sudo ln -sf /opt/homebrew/bin/7z /usr/local/bin/7z.exe || sudo ln -sf /usr/local/bin/7z /usr/local/bin/7z.exe
 
     - name: Locate Xcode iOS SDK & Tools
       run: |
         echo "IOS_SDK=$(xcrun --sdk iphoneos --show-sdk-path)" >> $GITHUB_ENV
         
-        # Creamos una carpeta .tools local y mapeamos los binarios de macOS con nombres .exe para que el script de Windows los encuentre
         mkdir -p app/ff_manager/.tools
         TOOLS_DIR="$(dirname $(xcrun --find clang))"
         
@@ -41,7 +43,6 @@ jobs:
       shell: pwsh
       run: |
         cd app/ff_manager
-        Set-Alias 7z /opt/homebrew/bin/7z -Force -ErrorAction SilentlyContinue
         ./build.ps1 -Offline
     
     - name: Upload Generated IPA Artifact

@@ -18,10 +18,10 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Dependencies & Lief
+    - name: Install Dependencies, Lief & Pillow
       run: |
         brew install p7zip
-        pip install lief
+        pip install lief Pillow
         sudo ln -sf /opt/homebrew/bin/7z /usr/local/bin/7z.exe || sudo ln -sf /usr/local/bin/7z /usr/local/bin/7z.exe
 
     - name: Locate Xcode iOS SDK & Tools

@@ -30,45 +30,14 @@ jobs:
         
         mkdir -p app/ff_manager/.tools
         
-        # Enlazamos clang y lipo de forma directa
+        # Enlazamos clang y lipo
         ln -sf $(xcrun --find clang) app/ff_manager/.tools/clang.exe
         ln -sf $(xcrun --find lipo) app/ff_manager/.tools/llvm-lipo.exe
         
-        # Creamos un script wrapper robusto en Python para ld64.lld.exe
-        cat << 'EOF' > app/ff_manager/.tools/ld64.lld.exe
-        #!/usr/bin/env python3
-        import sys
-        import subprocess
+        # Enlazamos ld nativo de Apple directamente como ld64.lld.exe
+        ln -sf $(xcrun --find ld) app/ff_manager/.tools/ld64.lld.exe
 
-        args = sys.argv[1:]
-        new_args = ['clang', '-target', 'arm64-apple-ios15.0']
-        
-        skip_next = False
-        for i, arg in enumerate(args):
-            if skip_next:
-                skip_next = False
-                continue
-            if arg == '-platform_version':
-                skip_next = True
-                continue
-            if arg in ['ios', '15.0']:
-                continue
-            if arg == '-adhoc_codesign':
-                continue
-            # Aseguramos que -syslibroot conserve su ruta correcta hacia el SDK de iOS
-            if arg == '-syslibroot':
-                new_args.append(arg)
-                new_args.append(args[i+1])
-                skip_next = True
-                continue
-                
-            new_args.append(arg)
-
-        sys.exit(subprocess.run(new_args).returncode)
-        EOF
-        chmod +x app/ff_manager/.tools/ld64.lld.exe
-
-        # Creamos los wrappers para install-name-tool y strip
+        # Creamos el wrapper para llvm-install-name-tool.exe
         cat << 'EOF' > app/ff_manager/.tools/llvm-install-name-tool.exe
         #!/usr/bin/env python3
         import sys
@@ -79,6 +48,7 @@ jobs:
         EOF
         chmod +x app/ff_manager/.tools/llvm-install-name-tool.exe
 
+        # Creamos el wrapper para llvm-strip.exe
         cat << 'EOF' > app/ff_manager/.tools/llvm-strip.exe
         #!/usr/bin/env python3
         import sys

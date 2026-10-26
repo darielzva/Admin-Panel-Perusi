@@ -1,0 +1,2749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="theme-color" content="#07090a">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>NEW IOS x SEÑOR IOS — Admin Panel</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  
+  :root {
+    color-scheme: dark;
+    /* PALETA OSCURA — verde / rojo (igual que la IPA) */
+    --bg: #07090a;
+    --bg2: #0e1214;
+    --bg3: #141a1d;
+    --bg4: #1c2327;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.16);
+    --text: #eef3f0;
+    --text2: rgba(238,243,240,0.68);
+    --text3: rgba(238,243,240,0.42);
+    --accent: #22d36b;
+    --accent-red: #ff3b4e;
+    --success: #2ee27a;
+    --danger: #ff4d5e;
+    --warning: #ff9f1c;
+    --info: #39c5ff;
+    --purple: #b57cff;
+  }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px 24px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .container { max-width: 1500px; margin: 0 auto; }
+  
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  
+  .header-left h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  
+  .header-left h1 span {
+    color: var(--text3);
+    font-weight: 400;
+  }
+  
+  .header-left p {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+  
+  .header-right {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .admin-badge {
+    padding: 8px 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text2);
+  }
+  
+  .maintenance-btn {
+    padding: 8px 16px;
+    background: rgba(255,159,28,0.1);
+    border: 1px solid rgba(255,159,28,0.3);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--warning);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  
+  .maintenance-btn:hover { background: rgba(255,159,28,0.2); }
+  .maintenance-btn.active { background: var(--danger); color: white; border-color: var(--danger); }
+  
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    padding-bottom: 0;
+  }
+  
+  .tab {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-bottom: 2px solid transparent;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  
+  .tab:hover { color: var(--text2); }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.2s ease; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* STATS */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  }
+  
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+  }
+  
+  .stat-card.success::before { background: var(--success); }
+  .stat-card.danger::before { background: var(--danger); }
+  .stat-card.warning::before { background: var(--warning); }
+  .stat-card.info::before { background: var(--info); }
+  
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+  
+  .stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+  
+  /* CARD */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .card-title {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .card-title::before {
+    content: '';
+    width: 3px; height: 16px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+  
+  /* FORM */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .form-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+  
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--border2);
+    background: var(--bg4);
+  }
+  
+  input::placeholder { color: var(--text3); }
+  
+  .hint {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  
+  .hint code {
+    background: var(--bg3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: var(--text2);
+  }
+  
+  /* BUTTONS */
+  .btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #2ee27a, #12b858);
+    color: #04100a;
+    box-shadow: 0 6px 18px rgba(34,211,107,0.35);
+    width: 100%;
+    padding: 16px;
+    font-size: 13px;
+  }
+  
+  .btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 10px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+  
+  .btn-ghost {
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  
+  .btn-ghost:hover { background: var(--bg4); color: var(--text); border-color: var(--border2); }
+  
+  .btn-success {
+    background: rgba(34,211,107,0.1);
+    color: var(--success);
+    border: 1px solid rgba(34,211,107,0.3);
+  }
+  
+  .btn-success:hover { background: rgba(34,211,107,0.2); }
+  
+  .btn-danger {
+    background: rgba(255,59,78,0.1);
+    color: var(--danger);
+    border: 1px solid rgba(255,59,78,0.3);
+  }
+  
+  .btn-danger:hover { background: rgba(255,59,78,0.2); }
+  
+  .btn-warning {
+    background: rgba(255,159,28,0.1);
+    color: var(--warning);
+    border: 1px solid rgba(255,159,28,0.3);
+  }
+  
+  .btn-warning:hover { background: rgba(255,159,28,0.2); }
+  
+  .btn-info {
+    background: rgba(57,197,255,0.1);
+    color: var(--info);
+    border: 1px solid rgba(57,197,255,0.3);
+  }
+  
+  .btn-info:hover { background: rgba(57,197,255,0.2); }
+  
+  .btn-purple {
+    background: rgba(181,124,255,0.1);
+    color: var(--purple);
+    border: 1px solid rgba(181,124,255,0.3);
+  }
+  
+  .btn-purple:hover { background: rgba(181,124,255,0.2); }
+  
+  /* SEARCH BAR */
+  .search-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .search-input-wrap {
+    flex: 1;
+    position: relative;
+    min-width: 200px;
+  }
+  
+  .search-input-wrap input {
+    padding-left: 40px;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    pointer-events: none;
+  }
+  
+  /* TABLE */
+  .table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1100px;
+  }
+  
+  thead {
+    background: var(--bg3);
+  }
+  
+  th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  
+  td {
+    padding: 16px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  
+  tr:last-child td { border-bottom: none; }
+  
+  tr:hover td { background: rgba(255,255,255,0.03); }
+  
+  .key-code {
+    font-family: 'SF Mono', Menlo, monospace;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--text);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  
+  .key-code:hover { color: var(--accent); }
+  
+  .time-remaining {
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--success);
+  }
+  
+  .time-remaining.warning { color: var(--warning); }
+  .time-remaining.danger { color: var(--danger); }
+  
+  .devices-info {
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  
+  .badge-active { background: rgba(34,211,107,0.15); color: var(--success); }
+  .badge-banned { background: rgba(255,59,78,0.15); color: var(--danger); }
+  .badge-expired { background: rgba(255,159,28,0.15); color: var(--warning); }
+  .badge-frozen { background: rgba(57,197,255,0.15); color: var(--info); }
+  .badge-blocked { background: rgba(255,159,28,0.15); color: var(--warning); }
+  .badge-popup { background: rgba(181,124,255,0.15); color: var(--purple); }
+  
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-width: 480px;
+  }
+  
+  /* PATCH ROW */
+  .patch-row {
+    display: grid;
+    grid-template-columns: 60px 2fr 1fr 1fr 1.5fr;
+    gap: 16px;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    transition: all 0.15s;
+  }
+  
+  .patch-row:hover {
+    border-color: var(--border2);
+    transform: translateX(2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  
+  .patch-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  
+  .patch-name {
+    font-weight: 700;
+    font-size: 14px;
+  }
+  
+  .patch-filename {
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 2px;
+    word-break: break-all;
+  }
+  
+  .patch-info {
+    font-size: 11px;
+    color: var(--text2);
+  }
+  
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+  }
+  
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .modal-title {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  
+  .modal-close:hover { background: var(--bg3); color: var(--text); }
+  
+  .modal-body { margin-bottom: 20px; }
+  
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  
+  /* FILE INPUT */
+  .file-input-wrapper {
+    position: relative;
+  }
+  
+  .file-input-wrapper input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 2;
+  }
+  
+  .file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px;
+    background: var(--bg3);
+    border: 2px dashed var(--border2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  
+  .file-input-label:hover {
+    border-color: var(--accent);
+    background: var(--bg4);
+  }
+  
+  .file-input-label.has-file {
+    border-style: solid;
+    border-color: var(--success);
+    color: var(--success);
+  }
+  
+  /* IP TABLE */
+  .ip-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    min-width: 0;
+  }
+  
+  .ip-table th {
+    padding: 10px 12px;
+    font-size: 9px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .ip-table td {
+    padding: 12px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  /* TOAST */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 2000;
+  }
+  
+  .toast {
+    padding: 14px 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    animation: slideIn 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 260px;
+  }
+  
+  .toast.success { border-color: rgba(34,211,107,0.4); color: var(--success); }
+  .toast.error { border-color: rgba(255,59,78,0.4); color: var(--danger); }
+  
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  /* LOADER */
+  .loader {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  
+  @keyframes spin { to { transform: rotate(360deg); } }
+  
+  /* EMPTY */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  
+  .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+  
+  /* MAINTENANCE BANNER */
+  .maintenance-banner {
+    background: linear-gradient(135deg, rgba(255,59,78,0.1), rgba(255,159,28,0.1));
+    border: 1px solid rgba(255,159,28,0.4);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--warning);
+    font-weight: 600;
+  }
+  
+  .maintenance-banner.hidden { display: none; }
+  
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .patch-row { grid-template-columns: 1fr; }
+  }
+  
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    body { padding: 16px 12px; }
+  }
+
+  /* ===== TEMA IPA: fondo con brillo verde/rojo ===== */
+  body {
+    background:
+      radial-gradient(900px 500px at 10% -10%, rgba(34,211,107,0.14), transparent 60%),
+      radial-gradient(800px 500px at 100% 110%, rgba(255,59,78,0.12), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+  .header-left h1 { color: var(--text); }
+  .header-left h1 span { color: var(--accent); }
+  .admin-badge { border-color: rgba(34,211,107,0.35); color: var(--accent); background: rgba(34,211,107,0.08); }
+  .stat-card, .card, .patch-row { backdrop-filter: blur(6px); }
+  input, select, textarea { color: var(--text); }
+  ::selection { background: rgba(34,211,107,0.35); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 8px; }
+  .toast.success { background: #0e1a13; }
+  .toast.error { background: #1c0e11; }
+
+  /* =====================================================================
+     MÓVIL — tarjetas, barra inferior, modales tipo hoja, botones grandes
+     ===================================================================== */
+  html { -webkit-text-size-adjust: 100%; }
+  button, .btn, .tab { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+  @media (max-width: 720px) {
+    body { padding: 12px 12px calc(84px + env(safe-area-inset-bottom)); font-size: 14px; }
+
+    /* Encabezado compacto */
+    .header { padding-bottom: 14px; margin-bottom: 14px; gap: 10px; }
+    .header-left h1 { font-size: 17px; }
+    .header-left h1 span { display: block; font-size: 11px; letter-spacing: 2px; margin-top: 2px; }
+    .header-left p { display: none; }
+    .header-right { width: 100%; gap: 8px; }
+    .maintenance-btn { flex: 1; padding: 12px; font-size: 11px; }
+    .admin-badge { padding: 12px 14px; }
+
+    /* Pestañas -> barra fija inferior */
+    .tabs {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
+      margin: 0; padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+      gap: 6px; border: none; border-top: 1px solid var(--border2);
+      background: rgba(10,14,16,0.94);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      overflow: visible;
+    }
+    .tab {
+      flex: 1; padding: 10px 4px; font-size: 10px; letter-spacing: 0.6px;
+      border: none; border-radius: 12px; text-align: center; line-height: 1.3;
+    }
+    .tab.active { background: rgba(34,211,107,0.14); color: var(--accent); border: none; }
+
+    /* Estadísticas 2x2 */
+    .stats { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .stat-card { padding: 14px 16px; }
+    .stat-value { font-size: 26px; }
+
+    /* Tarjetas y formularios */
+    .card { padding: 16px; border-radius: 14px; margin-bottom: 14px; }
+    .card-header { margin-bottom: 14px; }
+    .form-grid, .form-grid[style] { grid-template-columns: 1fr 1fr !important; gap: 12px; }
+    .form-grid .form-group:only-child { grid-column: 1 / -1; }
+    input, select, textarea { font-size: 16px !important; min-height: 46px; } /* evita el zoom de iOS */
+    textarea { min-height: 90px; }
+    .btn { min-height: 44px; }
+    .btn-primary { padding: 16px; position: sticky; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 5; }
+    .hint { font-size: 11px; }
+
+    /* Buscador */
+    .search-bar { gap: 8px; }
+    .search-input-wrap { min-width: 100%; flex-basis: 100%; }
+    .search-bar .btn { flex: 1; }
+
+    /* ---------- TABLA DE KEYS -> TARJETAS ---------- */
+    .table-container { border: none; border-radius: 0; overflow: visible; }
+    table, .table-container table { min-width: 0 !important; display: block; }
+    thead { display: none; }
+    tbody { display: flex; flex-direction: column; gap: 12px; }
+    tr[data-key-id] {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      background: var(--bg3); border: 1px solid var(--border2); border-radius: 14px; overflow: hidden;
+    }
+    tr[data-key-id] td { border: none; padding: 0; }
+    tr[data-key-id] td.c-code   { grid-area: 1 / 1; padding: 14px 8px 10px 14px; min-width: 0; }
+    tr[data-key-id] td.c-status { grid-area: 1 / 2; padding: 14px 14px 10px 8px; text-align: right; align-self: start; }
+    tr[data-key-id] td.c-time   { grid-area: 2 / 1; }
+    tr[data-key-id] td.c-dev    { grid-area: 2 / 2; }
+    tr[data-key-id] td.c-actions{ grid-area: 3 / 1 / 4 / 3; }
+    .key-code { display: block; font-size: 15px; word-break: break-all; }
+    tr[data-key-id] td.c-time, tr[data-key-id] td.c-dev {
+      padding: 4px 14px 12px; font-size: 12px;
+    }
+    tr[data-key-id] td.c-time::before, tr[data-key-id] td.c-dev::before {
+      content: attr(data-label); display: block; font-size: 9px; font-weight: 700;
+      letter-spacing: 1.2px; text-transform: uppercase; color: var(--text3); margin-bottom: 2px;
+    }
+    tr[data-key-id] td.c-actions {
+      padding: 12px; background: rgba(0,0,0,0.25);
+      border-top: 1px solid var(--border);
+    }
+    tr[data-key-id] .actions {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: none;
+    }
+    tr[data-key-id] .actions .btn { width: 100%; padding: 12px 6px; font-size: 11px; min-height: 44px; }
+    tr:hover td { background: none; }
+    td.empty, tr td[colspan] { display: block; padding: 40px 10px; text-align: center; }
+
+    /* ---------- Filas de parches / anuncios ---------- */
+    .patch-row, .patch-row[style] {
+      grid-template-columns: 1fr !important; gap: 10px; padding: 14px;
+    }
+    .patch-row .patch-icon { width: 40px; height: 40px; }
+    .patch-row .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: none; }
+    .patch-row .actions .btn { width: 100%; padding: 12px 6px; min-height: 44px; }
+
+    /* ---------- Modales -> hoja inferior ---------- */
+    .modal-overlay { align-items: flex-end; padding: 0; }
+    .modal, .modal[style] {
+      max-width: none !important; width: 100%; max-height: 92vh; max-height: 92dvh;
+      border-radius: 20px 20px 0 0; padding: 18px 16px calc(16px + env(safe-area-inset-bottom));
+      animation: sheetUp 0.28s ease;
+    }
+    .modal::before {
+      content: ''; display: block; width: 42px; height: 4px; border-radius: 4px;
+      background: var(--border2); margin: -6px auto 12px;
+    }
+    @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-header { margin-bottom: 14px; padding-bottom: 12px; }
+    .modal-close { width: 40px; height: 40px; background: var(--bg3); font-size: 22px; }
+    .modal-actions { flex-direction: column-reverse; gap: 8px; }
+    .modal-actions .btn { width: 100%; }
+
+    /* IPs en tarjetas */
+    .ip-table { display: block; min-width: 0; }
+    .ip-table thead { display: none; }
+    .ip-table tbody { display: flex; flex-direction: column; gap: 10px; }
+    .ip-table tr {
+      display: block; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px;
+    }
+    .ip-table td { display: block; border: none; padding: 4px 0; }
+    .ip-table td[data-label]:not([data-label=""])::before {
+      content: attr(data-label); display: block; font-size: 9px; font-weight: 700;
+      letter-spacing: 1.2px; text-transform: uppercase; color: var(--text3);
+    }
+    .ip-table td .btn { width: 100%; margin-top: 6px; }
+
+    /* Toasts arriba, no tapados por la barra */
+    #toast-container { top: calc(10px + env(safe-area-inset-top)) !important; bottom: auto !important;
+      left: 12px !important; right: 12px !important; }
+    .toast { min-width: 0; width: 100%; }
+  }
+
+  @media (max-width: 380px) {
+    .form-grid, .form-grid[style] { grid-template-columns: 1fr !important; }
+    .stat-value { font-size: 22px; }
+    .tab { font-size: 9px; }
+  }
+
+  /* ===== RESET DE KEY ===== */
+  .reset-sub { font-size: 12px; color: var(--text2); margin: -6px 0 14px; }
+  .reset-options { display: flex; flex-direction: column; gap: 10px; }
+  .reset-opt {
+    display: flex; align-items: flex-start; gap: 12px; width: 100%; text-align: left;
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 14px;
+    padding: 14px; color: var(--text); font-family: inherit; cursor: pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  .reset-opt:hover { border-color: rgba(34,211,107,0.5); }
+  .reset-opt:active { transform: scale(0.99); }
+  .reset-opt .ro-radio {
+    flex: none; width: 20px; height: 20px; border-radius: 50%; margin-top: 2px;
+    border: 2px solid var(--border2); position: relative;
+  }
+  .reset-opt .ro-icon { flex: none; font-size: 22px; line-height: 1.1; }
+  .reset-opt .ro-title { font-size: 13px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; }
+  .reset-opt .ro-desc { font-size: 12px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
+  .reset-opt.selected { border-color: var(--accent); background: rgba(34,211,107,0.08); }
+  .reset-opt.selected .ro-radio { border-color: var(--accent); }
+  .reset-opt.selected .ro-radio::after {
+    content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--accent);
+  }
+  .reset-opt.danger.selected { border-color: var(--danger); background: rgba(255,59,78,0.08); }
+  .reset-opt.danger.selected .ro-radio { border-color: var(--danger); }
+  .reset-opt.danger.selected .ro-radio::after { background: var(--danger); }
+  .reset-days-box { margin-top: 14px; display: none; }
+  .reset-days-box.show { display: block; }
+  .btn-reset-confirm { width: 100%; }
+  .btn-reset-confirm:disabled { opacity: 0.4; cursor: not-allowed; filter: none; transform: none; box-shadow: none; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-left">
+        <h1>NEW IOS x SEÑOR IOS <span>— SISTEMA COMPLETO</span></h1>
+        <p>Panel Maestro de Administración, Control de Keys y Parches</p>
+      </div>
+      <div class="header-right">
+        <button class="maintenance-btn" id="maintenance-btn" onclick="showMaintenanceModal()">
+          🚧 MANTENIMIENTO
+        </button>
+        <div class="admin-badge">ADMIN</div>
+      </div>
+    </div>
+
+    <!-- MAINTENANCE BANNER -->
+    <div class="maintenance-banner hidden" id="maintenance-banner">
+      <span style="font-size:20px">⚠️</span>
+      <div>
+        <div style="font-weight:800;letter-spacing:1px;margin-bottom:2px">MODO MANTENIMIENTO ACTIVO</div>
+        <div style="font-size:11px;opacity:0.8" id="maintenance-banner-msg"></div>
+      </div>
+    </div>
+
+    <!-- TABS (sin Opciones) -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('keys')">🔑 Keys</button>
+      <button class="tab" onclick="switchTab('patches')">📦 Parches</button>
+      <button class="tab" onclick="switchTab('announcements')">📢 Anuncios</button>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB: KEYS -->
+    <!-- ============================================ -->
+    <div class="tab-content active" id="tab-keys">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Total Keys</div>
+          <div class="stat-value" id="stat-total">—</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Activas</div>
+          <div class="stat-value" id="stat-active" style="color:var(--success)">—</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Baneadas</div>
+          <div class="stat-value" id="stat-banned" style="color:var(--danger)">—</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">Expiradas</div>
+          <div class="stat-value" id="stat-expired" style="color:var(--warning)">—</div>
+        </div>
+      </div>
+
+      <!-- GENERADOR -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Generador de Keys</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Cantidad</label>
+            <input type="number" id="gen-qty" value="1" min="1" max="100">
+          </div>
+          <div class="form-group">
+            <label>Duración (Días)</label>
+            <input type="number" id="gen-days" value="30" min="0">
+          </div>
+          <div class="form-group">
+            <label>Límite de Dispositivos (IPs)</label>
+            <input type="number" id="gen-devices" value="1" min="1">
+          </div>
+          <div class="form-group">
+            <label>Prefijo</label>
+            <input type="text" id="gen-prefix" placeholder="Ej: XDDD, VIP, PROMO..." value="PERUSI">
+          </div>
+        </div>
+        <div class="form-grid" style="grid-template-columns: 1fr;">
+          <div class="form-group">
+            <label>Texto Personalizado (opcional)</label>
+            <input type="text" id="gen-custom" placeholder="Ej: PERUSI-PRUEBA">
+          </div>
+        </div>
+        <div class="hint">
+          Si se deja en blanco usará por defecto el prefijo <code>PERUSI</code>. Si usas <strong>Texto Personalizado</strong>, la key será exactamente el texto ingresado sin relleno ni sufijos aleatorios.
+        </div>
+        <button class="btn btn-primary" id="btn-generate" style="margin-top:16px">
+          ⚡ GENERAR Y DESCARGAR KEYS
+        </button>
+      </div>
+
+      <!-- LISTADO -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Listado de Keys</div>
+        </div>
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search" placeholder="Buscar por código, estado o fecha...">
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">📊 CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportTXT()">📄 TXT</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadKeys()">↻ Refresh</button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Key Code</th>
+                <th>Tiempo Restante</th>
+                <th>Dispositivos / Máx</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="keys-tbody">
+              <tr><td colspan="5" class="empty"><div class="empty-icon">⏳</div>Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB: PARCHES -->
+    <!-- ============================================ -->
+    <div class="tab-content" id="tab-patches">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Total Parches</div>
+          <div class="stat-value" id="stat-patches-total">—</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Activos</div>
+          <div class="stat-value" id="stat-patches-active" style="color:var(--success)">—</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">Bloqueados</div>
+          <div class="stat-value" id="stat-patches-blocked" style="color:var(--warning)">—</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-label">Modo Normal</div>
+          <div class="stat-value" id="stat-patches-normal" style="color:var(--info)">—</div>
+        </div>
+      </div>
+
+      <!-- AÑADIR PARCHE -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">➕ Añadir Nuevo Parche</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombre visible</label>
+            <input type="text" id="patch-name" placeholder="Ej: Aimbot pierna (Sin Antena)">
+          </div>
+          <div class="form-group">
+            <label>Categoría</label>
+            <select id="patch-category">
+              <option value="aimbot">Aimbot</option>
+              <option value="hologramas">Hologramas</option>
+              <option value="holo_pj">Holo PJ</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Modo</label>
+            <select id="patch-mode">
+              <option value="normal">FF Normal</option>
+              <option value="max">FF MAX</option>
+              <option value="both">Ambos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Icono (SF Symbol)</label>
+            <select id="patch-icon">
+              <option value="scope">🎯 scope</option>
+              <option value="sparkles">✨ sparkles</option>
+              <option value="cube.transparent">🔷 cube.transparent</option>
+              <option value="person.fill">👤 person.fill</option>
+              <option value="flame.fill">🔥 flame.fill</option>
+              <option value="bolt.fill">⚡ bolt.fill</option>
+              <option value="shield.fill">🛡️ shield.fill</option>
+              <option value="eye.fill">👁️ eye.fill</option>
+              <option value="crosshair">⊕ crosshair</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid" style="grid-template-columns: 1fr;">
+          <div class="form-group">
+            <label>Archivo .3105</label>
+            <div class="file-input-wrapper">
+              <input type="file" id="patch-file" accept=".3105" onchange="onPatchFileChange(this)">
+              <label for="patch-file" class="file-input-label" id="patch-file-label">
+                <span>📁</span>
+                <span>Arrastra o haz clic para seleccionar el archivo .3105</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-add-patch" style="margin-top:16px" onclick="addPatch()">
+          ⚡ SUBIR PARCHE
+        </button>
+      </div>
+
+      <!-- LISTA DE PARCHES -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Parches Registrados</div>
+        </div>
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-patches" placeholder="Buscar parche...">
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="loadPatches()">↻ Refresh</button>
+        </div>
+
+        <div id="patches-list">
+          <div class="empty">
+            <div class="empty-icon">⏳</div>
+            Cargando parches...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAB: ANUNCIOS -->
+    <!-- ============================================ -->
+    <div class="tab-content" id="tab-announcements">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">➕ Añadir Anuncio Global</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Tipo</label>
+            <select id="ann-type">
+              <option value="info">ℹ️ Info</option>
+              <option value="success">✅ Éxito</option>
+              <option value="warning">⚠️ Advertencia</option>
+              <option value="danger">🚨 Peligro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Estilo</label>
+            <select id="ann-style">
+              <option value="banner">📢 Banner (pequeño, arriba)</option>
+              <option value="popup">🪟 Popup (grande, pantalla completa)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Expira en (días, 0 = nunca)</label>
+            <input type="number" id="ann-days" value="0" min="0">
+          </div>
+        </div>
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label>¿El usuario puede cerrarlo?</label>
+            <select id="ann-dismiss">
+              <option value="true">✅ Sí, puede cerrarlo</option>
+              <option value="false">❌ No, no puede cerrarlo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>¿Forzar reinicio de la app?</label>
+            <select id="ann-restart">
+              <option value="false">❌ No</option>
+              <option value="true">✅ Sí, debe reiniciar la app</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mensaje</label>
+          <textarea id="ann-message" rows="3" placeholder="Ej: Nuevos parches disponibles en el panel"></textarea>
+        </div>
+        <div class="hint">
+          <strong>Estilos:</strong> Banner = aparece pequeño arriba del panel. Popup = aparece grande en pantalla completa (bloquea hasta cerrarlo).<br>
+          <strong>Reinicio forzado:</strong> Si lo activas, el usuario DEBE reiniciar la app. No puede cerrar el popup. Úsalo solo para avisos críticos.
+        </div>
+        <button class="btn btn-primary" style="margin-top:16px" onclick="addAnnouncement()">
+          📢 PUBLICAR ANUNCIO
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Anuncios Activos</div>
+        </div>
+        <div id="announcements-list">
+          <div class="empty">
+            <div class="empty-icon">📢</div>
+            No hay anuncios activos
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOASTS -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- MODAL ROOT -->
+  <div id="modal-root"></div>
+
+<script>
+  // ============================================================
+  // CONFIGURACIÓN
+  // ============================================================
+  const SUPABASE_URL = 'https://uckcsnvmcomxethtfqum.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVja2NzbnZtY29teGV0aHRmcXVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3OTIwMDgsImV4cCI6MjEwODM2ODAwOH0._k0xyKIUDpwPtWky4JChDgHEWwLU5T6gGXcy2D7RnZc';
+  const STORAGE_BUCKET = 'patches';
+
+  const HEADERS = {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+
+  let allKeys = [];
+  let allPatches = [];
+  let allAnnouncements = [];
+  let keyDevices = {};
+  let currentMaintenance = { mode: false, message: '' };
+  let selectedPatchFile = null;
+
+  // ============================================================
+  // API REST
+  // ============================================================
+  async function apiGet(path) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: HEADERS });
+    if (!res.ok) throw new Error(`GET ${path} → ${res.status}`);
+    return res.json();
+  }
+
+  async function apiPost(path, body) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      method: 'POST', headers: HEADERS, body: JSON.stringify(body)
+    });
+    if (!res.ok) { const t = await res.text(); throw new Error(`POST: ${t}`); }
+    return res.json();
+  }
+
+  // Antes usaba return=minimal y no comprobaba nada: si RLS bloqueaba el UPDATE,
+  // Supabase respondía 204 (sin error, 0 filas) y el panel decía "listo" sin cambiar nada.
+  async function apiPatch(path, body) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      method: 'PATCH',
+      headers: { ...HEADERS, 'Prefer': 'return=representation' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) { const t = await res.text(); throw new Error(`PATCH ${res.status}: ${t}`); }
+    const rows = await res.json();
+    if (!Array.isArray(rows) || rows.length === 0) {
+      throw new Error('Supabase no modificó ninguna fila (falta la política RLS de UPDATE para esta tabla)');
+    }
+    return rows;
+  }
+
+  async function apiDelete(path, { allowEmpty = false } = {}) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      method: 'DELETE', headers: { ...HEADERS, 'Prefer': 'return=representation' }
+    });
+    if (!res.ok) { const t = await res.text(); throw new Error(`DELETE ${res.status}: ${t}`); }
+    const rows = await res.json();
+    if (!allowEmpty && (!Array.isArray(rows) || rows.length === 0)) {
+      throw new Error('Supabase no eliminó ninguna fila (falta la política RLS de DELETE para esta tabla)');
+    }
+    return Array.isArray(rows) ? rows : [];
+  }
+
+  // ============================================================
+  // STORAGE API
+  // ============================================================
+
+  // Supabase Storage solo acepta claves ASCII seguras: sin acentos, sin espacios.
+  // "BALAS MÁGICAS.3105" -> "BALAS_MAGICAS.3105"
+  function safeKey(name) {
+    return String(name || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')   // quita acentos (Á -> A)
+      .replace(/\s+/g, '_')                                // espacios -> _
+      .replace(/[^A-Za-z0-9._-]/g, '');                    // solo caracteres seguros
+  }
+
+  // Clave real del archivo en Storage para un parche ya registrado.
+  // Se saca del download_url (así funcionan también los parches antiguos).
+  function storageKeyOf(patch) {
+    try {
+      const last = String(patch.download_url || '').split('?')[0].split('/').pop();
+      if (last) return decodeURIComponent(last);
+    } catch (e) {}
+    return safeKey(patch.patch_filename) + '.3105';
+  }
+
+  async function uploadFile(filename, fileData) {
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${encodeURIComponent(filename)}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/octet-stream',
+        'x-upsert': 'true'
+      },
+      body: fileData
+    });
+    if (!res.ok) { const t = await res.text(); throw new Error(`UPLOAD: ${t}`); }
+    return true;
+  }
+
+  async function deleteFile(filename) {
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${encodeURIComponent(filename)}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+    if (!res.ok) throw new Error(`DELETE FILE: ${res.status}`);
+  }
+
+  function getPublicURL(filename) {
+    return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${encodeURIComponent(filename)}`;
+  }
+
+  // ============================================================
+  // TABS (sin Opciones)
+  // ============================================================
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+    
+    if (tab === 'patches') loadPatches();
+    if (tab === 'announcements') loadAnnouncements();
+  }
+
+  // ============================================================
+  // UTILIDADES
+  // ============================================================
+  function generateRandomKey(prefix) {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const segments = [];
+    for (let s = 0; s < 3; s++) {
+      let seg = '';
+      for (let i = 0; i < 4; i++) seg += chars[Math.floor(Math.random() * chars.length)];
+      segments.push(seg);
+    }
+    return `${prefix || 'PERUSI'}-${segments.join('-')}`;
+  }
+
+  function getTimeRemaining(key) {
+    if (key.is_banned) return { text: 'BANEADA', class: 'danger' };
+    if (!key.is_active) return { text: 'CONGELADA', class: 'warning' };
+    if (!key.expires_at) return { text: '∞ Ilimitada', class: '' };
+    
+    const now = new Date();
+    const exp = new Date(key.expires_at);
+    const diff = exp - now;
+    
+    if (diff <= 0) return { text: 'Expirada', class: 'danger' };
+    
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+    
+    if (days > 0) return { text: `${days}d ${hours}h ${mins}m`, class: days <= 3 ? 'warning' : '' };
+    if (hours > 0) return { text: `${hours}h ${mins}m ${secs}s`, class: 'warning' };
+    return { text: `${mins}m ${secs}s`, class: 'danger' };
+  }
+
+  function formatDate(str) {
+    if (!str) return '∞';
+    return new Date(str).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
+  }
+
+  function getKeyStatus(key) {
+    if (key.is_banned) return { label: 'BANEADA', class: 'badge-banned' };
+    if (!key.is_active) return { label: 'CONGELADA', class: 'badge-frozen' };
+    if (key.expires_at && new Date(key.expires_at) < new Date()) return { label: 'EXPIRADA', class: 'badge-expired' };
+    return { label: 'ACTIVA', class: 'badge-active' };
+  }
+
+  function toast(msg, type = 'success') {
+    const c = document.getElementById('toast-container');
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span>${type === 'success' ? '✓' : '✕'}</span><span>${msg}</span>`;
+    c.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
+  }
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => toast('Copiado'));
+  }
+
+  function closeModal() {
+    document.getElementById('modal-root').innerHTML = '';
+  }
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    })[c]);
+  }
+
+  // ============================================================
+  // KEYS
+  // ============================================================
+  async function loadKeys() {
+    try {
+      const keys = await apiGet('keys?select=*&order=created_at.desc');
+      allKeys = keys;
+      renderKeys(keys);
+      updateStats(keys);
+      
+      try {
+        const devs = await apiGet('key_devices?select=*');
+        keyDevices = {};
+        devs.forEach(d => {
+          if (!keyDevices[d.key_id]) keyDevices[d.key_id] = [];
+          keyDevices[d.key_id].push(d);
+        });
+      } catch (e) {}
+      
+      try {
+        const cfg = await apiGet('app_config?id=eq.1&select=*');
+        if (cfg.length > 0) {
+          currentMaintenance = {
+            mode: cfg[0].maintenance_mode || false,
+            message: cfg[0].maintenance_message || ''
+          };
+          updateMaintenanceUI();
+        }
+      } catch (e) {}
+      
+    } catch (e) {
+      console.error(e);
+      document.getElementById('keys-tbody').innerHTML = `
+        <tr><td colspan="5" class="empty">
+          <div class="empty-icon">⚠️</div>
+          Error: ${escapeHtml(e.message)}
+        </td></tr>
+      `;
+    }
+  }
+
+  function renderKeys(keys) {
+    const tbody = document.getElementById('keys-tbody');
+    
+    if (!keys.length) {
+      tbody.innerHTML = `
+        <tr><td colspan="5" class="empty">
+          <div class="empty-icon">📭</div>
+          No hay keys. Genera la primera arriba.
+        </td></tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = keys.map(key => {
+      const status = getKeyStatus(key);
+      const time = getTimeRemaining(key);
+      const devices = keyDevices[key.id]?.length || 0;
+      const maxDev = key.max_devices || 1;
+      
+      return `
+        <tr data-key-id="${key.id}">
+          <td class="c-code">
+            <span class="key-code" onclick="copyToClipboard('${escapeHtml(key.key_value)}')">
+              ${escapeHtml(key.key_value)}
+            </span>
+          </td>
+          <td class="c-time" data-label="Tiempo"><span class="time-remaining ${time.class}">${time.text}</span></td>
+          <td class="c-dev" data-label="Dispositivos"><span class="devices-info">${devices} / ${maxDev}</span></td>
+          <td class="c-status"><span class="badge ${status.class}">${status.label}</span></td>
+          <td class="c-actions">
+            <div class="actions">
+              <button class="btn btn-ghost btn-sm" onclick="copyToClipboard('${escapeHtml(key.key_value)}')">📋 Copiar</button>
+              <button class="btn btn-success btn-sm" onclick="showKeyModal('${key.id}')">🔑 Ver</button>
+              <button class="btn btn-info btn-sm" onclick="showEditModal('${key.id}')">✏️ Editar</button>
+              <button class="btn btn-info btn-sm" onclick="showIPsModal('${key.id}')">🌐 IPs</button>
+              ${key.is_active 
+                ? `<button class="btn btn-warning btn-sm" onclick="freezeKey('${key.id}')">❄️ Congelar</button>`
+                : `<button class="btn btn-success btn-sm" onclick="unfreezeKey('${key.id}')">🔥 Descongelar</button>`
+              }
+              ${!key.is_banned 
+                ? `<button class="btn btn-danger btn-sm" onclick="banKey('${key.id}')">🚫 Banear</button>`
+                : `<button class="btn btn-ghost btn-sm" onclick="unbanKey('${key.id}')">✓ Desbanear</button>`
+              }
+              <button class="btn btn-purple btn-sm btn-reset" onclick="showResetModal('${key.id}')">🔄 Reset</button>
+              <button class="btn btn-danger btn-sm btn-del" onclick="deleteKey('${key.id}', '${escapeHtml(key.key_value)}')">🗑️ Eliminar</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function updateStats(keys) {
+    const total = keys.length;
+    const active = keys.filter(k => 
+      k.is_active && !k.is_banned && 
+      (!k.expires_at || new Date(k.expires_at) > new Date())
+    ).length;
+    const banned = keys.filter(k => k.is_banned).length;
+    const expired = keys.filter(k => 
+      k.expires_at && new Date(k.expires_at) < new Date()
+    ).length;
+
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-active').textContent = active;
+    document.getElementById('stat-banned').textContent = banned;
+    document.getElementById('stat-expired').textContent = expired;
+  }
+
+  setInterval(() => {
+    document.querySelectorAll('tr[data-key-id]').forEach(row => {
+      const keyId = row.dataset.keyId;
+      const key = allKeys.find(k => k.id === keyId);
+      if (!key) return;
+      
+      const timeEl = row.querySelector('.time-remaining');
+      if (!timeEl) return;
+      
+      const time = getTimeRemaining(key);
+      timeEl.textContent = time.text;
+      timeEl.className = 'time-remaining ' + time.class;
+    });
+  }, 1000);
+
+  // ============================================================
+  // GENERAR KEYS
+  // ============================================================
+  async function generateKeys() {
+    const qty = parseInt(document.getElementById('gen-qty').value) || 1;
+    const days = parseInt(document.getElementById('gen-days').value) || 0;
+    const devices = parseInt(document.getElementById('gen-devices').value) || 1;
+    const prefix = document.getElementById('gen-prefix').value.trim();
+    const custom = document.getElementById('gen-custom').value.trim();
+    
+    if (qty > 100) { toast('Máximo 100 keys a la vez', 'error'); return; }
+    
+    const btn = document.getElementById('btn-generate');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader"></span> GENERANDO...';
+    
+    try {
+      const generated = [];
+      let expiresAt = null;
+      if (days > 0) {
+        const d = new Date();
+        d.setDate(d.getDate() + days);
+        expiresAt = d.toISOString();
+      }
+      
+      for (let i = 0; i < qty; i++) {
+        let keyValue;
+        if (custom) {
+          keyValue = qty === 1 ? custom : `${custom}-${i + 1}`;
+        } else {
+          keyValue = generateRandomKey(prefix || 'PERUSI');
+        }
+        
+        try {
+          await apiPost('keys', {
+            key_value: keyValue,
+            label: custom || prefix || 'PERUSI',
+            is_active: true,
+            is_banned: false,
+            expires_at: expiresAt,
+            max_devices: devices
+          });
+          generated.push(keyValue);
+        } catch (e) {
+          if (e.message.includes('duplicate')) continue;
+          throw e;
+        }
+      }
+      
+      toast(`${generated.length} key(s) generada(s)`);
+      showGeneratedModal(generated, days, devices);
+      document.getElementById('gen-custom').value = '';
+      loadKeys();
+    } catch (e) {
+      console.error(e);
+      toast('Error: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '⚡ GENERAR Y DESCARGAR KEYS';
+    }
+  }
+
+  // ============================================================
+  // MODALES DE KEY
+  // ============================================================
+  function showGeneratedModal(keys, days, devices) {
+    const root = document.getElementById('modal-root');
+    const keyList = keys.map(k => `• ${k}`).join('\n');
+    const durationText = days > 0 ? `${days} días` : 'Ilimitada';
+    const expText = days > 0 
+      ? new Date(Date.now() + days * 86400000).toLocaleDateString('es-ES')
+      : '∞';
+    
+    const modalContent = `🎁 KEY GENERADA
+
+${keyList}
+
+📅 Duración: ${durationText}
+📱 Dispositivos: ${devices}
+📅 Expira: ${expText}`;
+    
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">🎁 Vista de Entrega / Venta</div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <p style="font-size:12px;color:var(--text3);margin-bottom:12px">
+              Formato listo para enviar a tu cliente:
+            </p>
+            <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px;font-family:monospace;font-size:12px;white-space:pre-wrap;line-height:1.6;color:var(--text)">${escapeHtml(modalContent)}</div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" onclick="copyToClipboard(\`${modalContent.replace(/`/g, '\\`')}\`)">📋 COPIAR</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function showKeyModal(id) {
+    const key = allKeys.find(k => k.id === id);
+    if (!key) return;
+    
+    const root = document.getElementById('modal-root');
+    const days = key.expires_at 
+      ? Math.max(0, Math.ceil((new Date(key.expires_at) - new Date()) / 86400000))
+      : 999;
+    
+    const deliveryText = `✅ KEY GENERADA
+
+${key.key_value}
+
+📅 Duración: ${days} días
+📱 Dispositivos: ${key.max_devices || 1}
+📅 Expira: ${key.expires_at ? new Date(key.expires_at).toLocaleDateString('es-ES') : '∞'}`;
+    
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">🎁 Vista de Entrega / Venta</div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px;font-family:monospace;font-size:12px;white-space:pre-wrap;line-height:1.6;color:var(--text)">${escapeHtml(deliveryText)}</div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" onclick="copyToClipboard(\`${deliveryText.replace(/`/g, '\\`')}\`)">📋 COPIAR</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function showEditModal(id) {
+    const key = allKeys.find(k => k.id === id);
+    if (!key) return;
+    
+    const root = document.getElementById('modal-root');
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">Editar Key: ${escapeHtml(key.key_value)}</div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+              <div class="form-group">
+                <label>Días a extender</label>
+                <input type="number" id="edit-days" value="30" min="0">
+              </div>
+              <div class="form-group">
+                <label>Límite dispositivos</label>
+                <input type="number" id="edit-devices" value="${key.max_devices || 1}" min="1">
+              </div>
+            </div>
+            <div class="hint" style="margin-top:12px">
+              Al guardar, el tiempo de expiración se recalculará a partir de este instante.
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" onclick="saveEdit('${id}')">💾 GUARDAR</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function saveEdit(id) {
+    const days = parseInt(document.getElementById('edit-days').value) || 0;
+    const devices = parseInt(document.getElementById('edit-devices').value) || 1;
+    
+    let expiresAt = null;
+    if (days > 0) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      expiresAt = d.toISOString();
+    }
+    
+    try {
+      await apiPatch(`keys?id=eq.${id}`, {
+        expires_at: expiresAt,
+        max_devices: devices
+      });
+      toast('Key actualizada');
+      closeModal();
+      loadKeys();
+    } catch (e) {
+      toast('Error: ' + e.message, 'error');
+    }
+  }
+
+  function showIPsModal(id) {
+    const key = allKeys.find(k => k.id === id);
+    if (!key) return;
+    
+    const devices = keyDevices[id] || [];
+    const root = document.getElementById('modal-root');
+    
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal" style="max-width:700px">
+          <div class="modal-header">
+            <div class="modal-title">IPs: ${escapeHtml(key.key_value)}</div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            ${devices.length === 0 
+              ? `<div class="empty" style="padding:40px"><div class="empty-icon">🌐</div>Sin dispositivos registrados</div>`
+              : `
+                <table class="ip-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Dispositivo</th>
+                      <th>Última conexión</th>
+                      <th>Control</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${devices.map((d, i) => `
+                      <tr>
+                        <td data-label=""><strong>#${i + 1}</strong></td>
+                        <td data-label="Dispositivo" style="font-family:monospace;font-size:12px;word-break:break-all">${escapeHtml(d.device_id || '—')}</td>
+                        <td data-label="Última conexión" style="color:var(--text3);font-size:11px">${d.last_seen ? new Date(d.last_seen).toLocaleString('es-ES') : '—'}</td>
+                        <td data-label="">
+                          <button class="btn btn-warning btn-sm" onclick="banIP('${id}', '${d.id}')">Banear</button>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              `
+            }
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function banIP(keyId, deviceId) {
+    if (!confirm('¿Banear esta IP?')) return;
+    try {
+      await apiDelete(`key_devices?id=eq.${deviceId}`);
+      toast('IP baneada');
+      await loadKeys();
+      showIPsModal(keyId);
+    } catch (e) {
+      toast('Error: ' + e.message, 'error');
+    }
+  }
+
+  async function banKey(id) {
+    if (!confirm('¿Banear esta key?')) return;
+    try {
+      await apiPatch(`keys?id=eq.${id}`, { is_banned: true });
+      toast('Key baneada');
+      await loadKeys();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function unbanKey(id) {
+    try {
+      await apiPatch(`keys?id=eq.${id}`, { is_banned: false });
+      toast('Key desbaneada');
+      await loadKeys();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function freezeKey(id) {
+    try {
+      await apiPatch(`keys?id=eq.${id}`, { is_active: false });
+      toast('Key congelada');
+      await loadKeys();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function unfreezeKey(id) {
+    try {
+      await apiPatch(`keys?id=eq.${id}`, { is_active: true });
+      toast('Key descongelada');
+      await loadKeys();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+
+  // ============================================================
+  // RESET DE KEY (días / dispositivos / completa)
+  // ============================================================
+  let resetChoice = null;
+
+  // Duración con la que se creó la key: expiración - creación (en días).
+  // 0 = key sin expiración.
+  function originalDays(key) {
+    if (!key.expires_at) return 0;
+    const ms = new Date(key.expires_at) - new Date(key.created_at);
+    return Math.max(1, Math.round(ms / 86400000));
+  }
+
+  function showResetModal(id) {
+    const key = allKeys.find(k => k.id === id);
+    if (!key) return;
+    resetChoice = null;
+
+    const devCount = keyDevices[id]?.length || 0;
+    const maxDev = key.max_devices || 1;
+    const orig = originalDays(key);
+    const origText = orig > 0 ? `${orig} día${orig === 1 ? '' : 's'}` : 'sin expiración';
+
+    document.getElementById('modal-root').innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">🔄 Resetear: ${escapeHtml(key.key_value)}</div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="reset-sub">¿Qué quieres resetear?</div>
+
+            <div class="reset-options">
+              <button type="button" class="reset-opt" data-choice="days" onclick="selectResetOption('days')">
+                <span class="ro-radio"></span>
+                <span class="ro-icon">📅</span>
+                <span>
+                  <div class="ro-title">Los días</div>
+                  <div class="ro-desc">El tiempo vuelve a empezar con los días con que se creó (${origText}), contados desde ahora.</div>
+                </span>
+              </button>
+
+              <button type="button" class="reset-opt" data-choice="devices" onclick="selectResetOption('devices')">
+                <span class="ro-radio"></span>
+                <span class="ro-icon">📱</span>
+                <span>
+                  <div class="ro-title">Los dispositivos</div>
+                  <div class="ro-desc">Borra la lista de dispositivos de esta key. Pasa de ${devCount} / ${maxDev} a 0 / ${maxDev}.</div>
+                </span>
+              </button>
+
+              <button type="button" class="reset-opt danger" data-choice="full" onclick="selectResetOption('full')">
+                <span class="ro-radio"></span>
+                <span class="ro-icon">♻️</span>
+                <span>
+                  <div class="ro-title">La key completa</div>
+                  <div class="ro-desc">La key queda como nueva: días reiniciados, 0 dispositivos, activa y sin baneo.</div>
+                </span>
+              </button>
+            </div>
+
+            <div class="reset-days-box" id="reset-days-box">
+              <div class="form-group">
+                <label>Días a asignar</label>
+                <input type="number" id="reset-days" value="${orig}" min="0">
+              </div>
+              <div class="hint" style="margin-top:8px">
+                Se propone la duración original (${origText}). Puedes cambiarla. Con 0 la key queda sin expiración.
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary btn-reset-confirm" id="reset-confirm-btn" disabled
+                    onclick="confirmReset('${id}')">🔄 RESETEAR</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function selectResetOption(choice) {
+    resetChoice = choice;
+    document.querySelectorAll('.reset-opt').forEach(el => {
+      el.classList.toggle('selected', el.dataset.choice === choice);
+    });
+    document.getElementById('reset-days-box').classList.toggle('show', choice === 'days' || choice === 'full');
+    const btn = document.getElementById('reset-confirm-btn');
+    btn.disabled = false;
+    btn.textContent = { days: '📅 RESETEAR DÍAS', devices: '📱 RESETEAR DISPOSITIVOS', full: '♻️ RESETEAR KEY COMPLETA' }[choice];
+  }
+
+  async function confirmReset(id) {
+    const key = allKeys.find(k => k.id === id);
+    if (!key || !resetChoice) return;
+
+    const choice = resetChoice;
+    const devCount = keyDevices[id]?.length || 0;
+
+    let expiresAt = null;
+    let days = 0;
+    if (choice === 'days' || choice === 'full') {
+      days = parseInt(document.getElementById('reset-days').value);
+      if (isNaN(days) || days < 0) { toast('Pon un número de días válido (0 o más)', 'error'); return; }
+      if (days > 0) {
+        const d = new Date();
+        d.setDate(d.getDate() + days);
+        expiresAt = d.toISOString();
+      }
+    }
+
+    if (choice === 'full' &&
+        !confirm(`¿Resetear la key completa "${key.key_value}"?\n\nSe borran sus dispositivos y vuelve como nueva.`)) {
+      return;
+    }
+
+    const btn = document.getElementById('reset-confirm-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader"></span> RESETEANDO...';
+
+    try {
+      if (choice === 'days') {
+        await apiPatch(`keys?id=eq.${id}`, {
+          expires_at: expiresAt,
+          created_at: new Date().toISOString()   // inicio del nuevo periodo
+        });
+        toast(days > 0 ? `Días reseteados (${days})` : 'Key sin expiración');
+      }
+
+      if (choice === 'devices') {
+        await resetKeyDevices(id, devCount);
+        toast('Dispositivos reseteados');
+      }
+
+      if (choice === 'full') {
+        await apiPatch(`keys?id=eq.${id}`, {
+          expires_at: expiresAt,
+          created_at: new Date().toISOString(),
+          is_active: true,
+          is_banned: false
+        });
+        await resetKeyDevices(id, devCount);
+        toast('Key reseteada por completo');
+      }
+
+      closeModal();
+      await loadKeys();
+    } catch (e) {
+      toast('Error: ' + e.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Reintentar';
+    }
+  }
+
+  async function resetKeyDevices(keyId, expectedCount) {
+    const rows = await apiDelete(`key_devices?key_id=eq.${keyId}`, { allowEmpty: true });
+    // Si había dispositivos y no se borró ninguno, RLS bloqueó el DELETE.
+    if (expectedCount > 0 && rows.length === 0) {
+      throw new Error('Supabase no borró los dispositivos (falta la política RLS de DELETE en key_devices)');
+    }
+  }
+
+  async function deleteKey(id, keyValue) {
+    if (!confirm(`¿Eliminar "${keyValue}"?`)) return;
+    try {
+      await apiDelete(`keys?id=eq.${id}`);
+      toast('Key eliminada');
+      await loadKeys();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  // ============================================================
+  // PARCHES
+  // ============================================================
+  async function loadPatches() {
+    try {
+      const patches = await apiGet('patches?select=*&order=sort_order.asc,created_at.desc');
+      allPatches = patches;
+      renderPatches(patches);
+      updatePatchStats(patches);
+    } catch (e) {
+      console.error(e);
+      document.getElementById('patches-list').innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">⚠️</div>
+          Error: ${escapeHtml(e.message)}
+        </div>
+      `;
+    }
+  }
+
+  function renderPatches(patches) {
+    const container = document.getElementById('patches-list');
+    
+    if (!patches.length) {
+      container.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">📦</div>
+          No hay parches registrados. Añade el primero arriba.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = patches.map(patch => {
+      const icon = getIconEmoji(patch.icon);
+      const modeText = { normal: 'FF Normal', max: 'FF MAX', both: 'Ambos' }[patch.mode] || patch.mode;
+      const categoryText = { aimbot: 'Aimbot', hologramas: 'Hologramas', holo_pj: 'Holo PJ' }[patch.category] || patch.category;
+      const isBlocked = patch.is_blocked;
+      const isActive = patch.is_active;
+      
+      let statusBadge = '';
+      if (!isActive) statusBadge = '<span class="badge badge-banned">INACTIVO</span>';
+      else if (isBlocked) statusBadge = '<span class="badge badge-blocked">BLOQUEADO</span>';
+      else statusBadge = '<span class="badge badge-active">ACTIVO</span>';
+      
+      return `
+        <div class="patch-row">
+          <div class="patch-icon">${icon}</div>
+          <div>
+            <div class="patch-name">${escapeHtml(patch.display_name)}</div>
+            <div class="patch-filename">${escapeHtml(patch.patch_filename)}.3105 · v${patch.version}</div>
+          </div>
+          <div class="patch-info">
+            <div>📁 ${categoryText}</div>
+            <div>🎮 ${modeText}</div>
+          </div>
+          <div>
+            ${statusBadge}
+          </div>
+          <div class="actions">
+            ${isActive 
+              ? `<button class="btn btn-warning btn-sm" onclick="togglePatchActive('${patch.id}', false)">⏸️ Desactivar</button>`
+              : `<button class="btn btn-success btn-sm" onclick="togglePatchActive('${patch.id}', true)">▶️ Activar</button>`
+            }
+            ${isBlocked
+              ? `<button class="btn btn-success btn-sm" onclick="togglePatchBlocked('${patch.id}', false)">🔓 Desbloquear</button>`
+              : `<button class="btn btn-warning btn-sm" onclick="togglePatchBlocked('${patch.id}', true)">🔒 Bloquear</button>`
+            }
+            <button class="btn btn-info btn-sm" onclick="showEditPatchModal('${patch.id}')">✏️ Editar</button>
+            <button class="btn btn-purple btn-sm" onclick="showReplacePatchModal('${patch.id}')">🔄 Reemplazar</button>
+            <button class="btn btn-danger btn-sm" onclick="deletePatch('${patch.id}')">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function getIconEmoji(iconName) {
+    const map = {
+      'scope': '🎯',
+      'sparkles': '✨',
+      'cube.transparent': '🔷',
+      'person.fill': '👤',
+      'flame.fill': '🔥',
+      'bolt.fill': '⚡',
+      'shield.fill': '🛡️',
+      'eye.fill': '👁️',
+      'crosshair': '⊕'
+    };
+    return map[iconName] || '📦';
+  }
+
+  function updatePatchStats(patches) {
+    const total = patches.length;
+    const active = patches.filter(p => p.is_active).length;
+    const blocked = patches.filter(p => p.is_blocked).length;
+    const normal = patches.filter(p => p.mode === 'normal' || p.mode === 'both').length;
+    
+    document.getElementById('stat-patches-total').textContent = total;
+    document.getElementById('stat-patches-active').textContent = active;
+    document.getElementById('stat-patches-blocked').textContent = blocked;
+    document.getElementById('stat-patches-normal').textContent = normal;
+  }
+
+  function onPatchFileChange(input) {
+    const file = input.files[0];
+    const label = document.getElementById('patch-file-label');
+    
+    if (file) {
+      selectedPatchFile = file;
+      label.classList.add('has-file');
+      label.innerHTML = `<span>✅</span><span>${escapeHtml(file.name)} (${(file.size/1024).toFixed(1)} KB)</span>`;
+    } else {
+      selectedPatchFile = null;
+      label.classList.remove('has-file');
+      label.innerHTML = `<span>📁</span><span>Arrastra o haz clic para seleccionar el archivo .3105</span>`;
+    }
+  }
+
+  async function addPatch() {
+    const name = document.getElementById('patch-name').value.trim();
+    const category = document.getElementById('patch-category').value;
+    const mode = document.getElementById('patch-mode').value;
+    const icon = document.getElementById('patch-icon').value;
+    
+    if (!name) { toast('Escribe un nombre visible', 'error'); return; }
+    if (!selectedPatchFile) { toast('Selecciona el archivo .3105', 'error'); return; }
+    
+    if (!selectedPatchFile.name.toLowerCase().endsWith('.3105')) {
+      toast('El archivo debe ser .3105', 'error');
+      return;
+    }
+    
+    const btn = document.getElementById('btn-add-patch');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader"></span> SUBIENDO...';
+    
+    try {
+      // Nombre original (se conserva tal cual en el registro del parche)
+      const filename = selectedPatchFile.name.replace(/\.3105$/i, '');
+
+      // Nombre seguro SOLO para la clave en Storage (sin acentos ni espacios)
+      const storageName = safeKey(filename) + '.3105';
+      if (storageName === '.3105') {
+        throw new Error('El nombre del archivo no tiene caracteres válidos. Renómbralo (solo letras y números).');
+      }
+
+      const patchKey = name.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') + '-' + mode + '-' + Date.now().toString(36);
+      
+      const arrayBuffer = await selectedPatchFile.arrayBuffer();
+      await uploadFile(storageName, arrayBuffer);
+      
+      const downloadURL = getPublicURL(storageName);
+      
+      await apiPost('patches', {
+        patch_key: patchKey,
+        display_name: name,
+        patch_filename: filename,
+        category: category,
+        mode: mode,
+        icon: icon,
+        download_url: downloadURL,
+        version: 1,
+        is_active: true,
+        is_blocked: false,
+        sort_order: 100
+      });
+      
+      toast('✅ Parche añadido correctamente');
+      
+      document.getElementById('patch-name').value = '';
+      document.getElementById('patch-file').value = '';
+      selectedPatchFile = null;
+      document.getElementById('patch-file-label').innerHTML = `<span>📁</span><span>Arrastra o haz clic para seleccionar el archivo .3105</span>`;
+      document.getElementById('patch-file-label').classList.remove('has-file');
+      
+      loadPatches();
+    } catch (e) {
+      console.error(e);
+      toast('Error: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '⚡ SUBIR PARCHE';
+    }
+  }
+
+  async function togglePatchActive(id, active) {
+    try {
+      await apiPatch(`patches?id=eq.${id}`, { is_active: active });
+      toast(active ? 'Parche activado' : 'Parche desactivado');
+      await loadPatches();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function togglePatchBlocked(id, blocked) {
+    if (blocked) {
+      const msg = prompt('Mensaje de bloqueo que verá el usuario:', 'En mantenimiento. Vuelve pronto.');
+      if (msg === null) return;
+      
+      try {
+        await apiPatch(`patches?id=eq.${id}`, {
+          is_blocked: true,
+          block_message: msg || 'En mantenimiento.'
+        });
+        toast('Parche bloqueado');
+        await loadPatches();
+      } catch (e) { toast('Error: ' + e.message, 'error'); }
+    } else {
+      try {
+        await apiPatch(`patches?id=eq.${id}`, {
+          is_blocked: false,
+          block_message: null
+        });
+        toast('Parche desbloqueado');
+        await loadPatches();
+      } catch (e) { toast('Error: ' + e.message, 'error'); }
+    }
+  }
+
+  function showEditPatchModal(id) {
+    const patch = allPatches.find(p => p.id === id);
+    if (!patch) return;
+    
+    const root = document.getElementById('modal-root');
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">✏️ Editar Parche</div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Nombre visible</label>
+              <input type="text" id="edit-patch-name" value="${escapeHtml(patch.display_name)}">
+            </div>
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-top:16px">
+              <div class="form-group">
+                <label>Categoría</label>
+                <select id="edit-patch-category">
+                  <option value="aimbot" ${patch.category === 'aimbot' ? 'selected' : ''}>Aimbot</option>
+                  <option value="hologramas" ${patch.category === 'hologramas' ? 'selected' : ''}>Hologramas</option>
+                  <option value="holo_pj" ${patch.category === 'holo_pj' ? 'selected' : ''}>Holo PJ</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Modo</label>
+                <select id="edit-patch-mode">
+                  <option value="normal" ${patch.mode === 'normal' ? 'selected' : ''}>FF Normal</option>
+                  <option value="max" ${patch.mode === 'max' ? 'selected' : ''}>FF MAX</option>
+                  <option value="both" ${patch.mode === 'both' ? 'selected' : ''}>Ambos</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:16px">
+              <label>Icono</label>
+              <select id="edit-patch-icon">
+                <option value="scope" ${patch.icon === 'scope' ? 'selected' : ''}>🎯 scope</option>
+                <option value="sparkles" ${patch.icon === 'sparkles' ? 'selected' : ''}>✨ sparkles</option>
+                <option value="cube.transparent" ${patch.icon === 'cube.transparent' ? 'selected' : ''}>🔷 cube.transparent</option>
+                <option value="person.fill" ${patch.icon === 'person.fill' ? 'selected' : ''}>👤 person.fill</option>
+                <option value="flame.fill" ${patch.icon === 'flame.fill' ? 'selected' : ''}>🔥 flame.fill</option>
+                <option value="bolt.fill" ${patch.icon === 'bolt.fill' ? 'selected' : ''}>⚡ bolt.fill</option>
+                <option value="shield.fill" ${patch.icon === 'shield.fill' ? 'selected' : ''}>🛡️ shield.fill</option>
+                <option value="eye.fill" ${patch.icon === 'eye.fill' ? 'selected' : ''}>👁️ eye.fill</option>
+                <option value="crosshair" ${patch.icon === 'crosshair' ? 'selected' : ''}>⊕ crosshair</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" onclick="savePatchEdit('${id}')">💾 GUARDAR</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function savePatchEdit(id) {
+    const name = document.getElementById('edit-patch-name').value.trim();
+    const category = document.getElementById('edit-patch-category').value;
+    const mode = document.getElementById('edit-patch-mode').value;
+    const icon = document.getElementById('edit-patch-icon').value;
+    
+    if (!name) { toast('Escribe un nombre', 'error'); return; }
+    
+    try {
+      await apiPatch(`patches?id=eq.${id}`, {
+        display_name: name,
+        category: category,
+        mode: mode,
+        icon: icon
+      });
+      toast('Parche actualizado');
+      closeModal();
+      await loadPatches();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  function showReplacePatchModal(id) {
+    const patch = allPatches.find(p => p.id === id);
+    if (!patch) return;
+    
+    const root = document.getElementById('modal-root');
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">🔄 Reemplazar Archivo .3105</div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div style="padding:12px;background:var(--bg3);border-radius:10px;margin-bottom:16px">
+              <div style="font-weight:700;margin-bottom:4px">${escapeHtml(patch.display_name)}</div>
+              <div style="font-size:11px;color:var(--text3);font-family:monospace">${escapeHtml(patch.patch_filename)}.3105</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:4px">Versión actual: v${patch.version}</div>
+            </div>
+            <div class="file-input-wrapper">
+              <input type="file" id="replace-file" accept=".3105" onchange="onReplaceFileChange(this)">
+              <label for="replace-file" class="file-input-label" id="replace-file-label">
+                <span>📁</span>
+                <span>Selecciona el nuevo archivo .3105</span>
+              </label>
+            </div>
+            <div class="hint" style="margin-top:12px">
+              El archivo debe tener el <strong>mismo nombre</strong> que el actual para mantener la compatibilidad. 
+              El nuevo archivo reemplazará al anterior en el Storage y la versión se incrementará.
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn btn-primary" onclick="replacePatchFile('${id}')">🔄 REEMPLAZAR</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  let replaceFile = null;
+
+  function onReplaceFileChange(input) {
+    const file = input.files[0];
+    const label = document.getElementById('replace-file-label');
+    
+    if (file) {
+      replaceFile = file;
+      label.classList.add('has-file');
+      label.innerHTML = `<span>✅</span><span>${escapeHtml(file.name)} (${(file.size/1024).toFixed(1)} KB)</span>`;
+    } else {
+      replaceFile = null;
+      label.classList.remove('has-file');
+      label.innerHTML = `<span>📁</span><span>Selecciona el nuevo archivo .3105</span>`;
+    }
+  }
+
+  async function replacePatchFile(id) {
+    const patch = allPatches.find(p => p.id === id);
+    if (!patch) return;
+    
+    if (!replaceFile) { toast('Selecciona el archivo', 'error'); return; }
+    
+    if (!replaceFile.name.toLowerCase().endsWith('.3105')) {
+      toast('El archivo debe ser .3105', 'error');
+      return;
+    }
+    
+    const newFilename = replaceFile.name.replace(/\.3105$/i, '');
+    if (newFilename !== patch.patch_filename) {
+      if (!confirm(`⚠️ El nombre del archivo NO coincide:\n\nActual: ${patch.patch_filename}.3105\nNuevo: ${replaceFile.name}\n\n¿Quieres continuar? El archivo se subirá con el nombre ORIGINAL para mantener compatibilidad.`)) {
+        return;
+      }
+    }
+    
+    try {
+      const arrayBuffer = await replaceFile.arrayBuffer();
+      // Se sobrescribe la MISMA clave que ya usa el parche en Storage
+      await uploadFile(storageKeyOf(patch), arrayBuffer);
+      
+      await apiPatch(`patches?id=eq.${id}`, {
+        version: (patch.version || 1) + 1
+      });
+      
+      toast('✅ Archivo reemplazado. Los usuarios lo recibirán al reiniciar.');
+      closeModal();
+      await loadPatches();
+      replaceFile = null;
+    } catch (e) {
+      console.error(e);
+      toast('Error: ' + e.message, 'error');
+    }
+  }
+
+  async function deletePatch(id) {
+    const patch = allPatches.find(p => p.id === id);
+    if (!patch) return;
+    
+    if (!confirm(`¿Eliminar el parche "${patch.display_name}"?\n\nSe borrará:\n- El archivo del Storage\n- El registro de la base de datos\n\nLos usuarios dejarán de verlo al reiniciar la app.`)) return;
+    
+    try {
+      try {
+        await deleteFile(storageKeyOf(patch));
+      } catch (e) {
+        console.warn('No se pudo borrar el archivo del Storage:', e);
+      }
+      
+      await apiDelete(`patches?id=eq.${id}`);
+      
+      toast('Parche eliminado');
+      await loadPatches();
+    } catch (e) {
+      toast('Error: ' + e.message, 'error');
+    }
+  }
+
+  // ============================================================
+  // ANUNCIOS
+  // ============================================================
+  async function loadAnnouncements() {
+    try {
+      const announcements = await apiGet('announcements?select=*&order=created_at.desc');
+      allAnnouncements = announcements;
+      renderAnnouncements(announcements);
+    } catch (e) {
+      console.error(e);
+      document.getElementById('announcements-list').innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">📢</div>
+          No hay anuncios o la tabla no existe aún.
+        </div>
+      `;
+    }
+  }
+
+  function renderAnnouncements(announcements) {
+    const container = document.getElementById('announcements-list');
+    
+    if (!announcements.length) {
+      container.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">📢</div>
+          No hay anuncios activos
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = announcements.map(ann => {
+      const typeEmoji = {
+        info: 'ℹ️',
+        success: '✅',
+        warning: '⚠️',
+        danger: '🚨'
+      }[ann.type] || 'ℹ️';
+      
+      const isExpired = ann.expires_at && new Date(ann.expires_at) < new Date();
+      const isActive = ann.is_active && !isExpired;
+      
+      const styleBadge = ann.display_style === 'popup' 
+        ? '<span class="badge badge-popup">🪟 POPUP</span>' 
+        : '<span class="badge badge-frozen">📢 BANNER</span>';
+      
+      const dismissBadge = ann.can_dismiss 
+        ? '<span class="badge badge-active">✕ Cerrable</span>' 
+        : '<span class="badge badge-banned">🔒 No cerrable</span>';
+      
+      const restartBadge = ann.force_restart 
+        ? '<span class="badge badge-expired">🔄 Reinicio forzado</span>' 
+        : '';
+      
+      return `
+        <div class="patch-row" style="grid-template-columns: 60px 3fr 1fr 1fr;">
+          <div class="patch-icon">${typeEmoji}</div>
+          <div>
+            <div style="font-weight:700">${escapeHtml(ann.message)}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px">
+              Creado: ${formatDate(ann.created_at)}
+              ${ann.expires_at ? ` · Expira: ${formatDate(ann.expires_at)}` : ' · Sin expiración'}
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+              ${styleBadge}
+              ${dismissBadge}
+              ${restartBadge}
+            </div>
+          </div>
+          <div>
+            ${isActive 
+              ? '<span class="badge badge-active">ACTIVO</span>'
+              : (isExpired ? '<span class="badge badge-expired">EXPIRADO</span>' : '<span class="badge badge-frozen">INACTIVO</span>')
+            }
+          </div>
+          <div class="actions">
+            ${ann.is_active 
+              ? `<button class="btn btn-warning btn-sm" onclick="toggleAnnouncement('${ann.id}', false)">⏸️ Desactivar</button>`
+              : `<button class="btn btn-success btn-sm" onclick="toggleAnnouncement('${ann.id}', true)">▶️ Activar</button>`
+            }
+            <button class="btn btn-danger btn-sm" onclick="deleteAnnouncement('${ann.id}')">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function addAnnouncement() {
+    const message = document.getElementById('ann-message').value.trim();
+    const type = document.getElementById('ann-type').value;
+    const displayStyle = document.getElementById('ann-style').value;
+    const canDismiss = document.getElementById('ann-dismiss').value === 'true';
+    const forceRestart = document.getElementById('ann-restart').value === 'true';
+    const days = parseInt(document.getElementById('ann-days').value) || 0;
+    
+    if (!message) { toast('Escribe un mensaje', 'error'); return; }
+    
+    if (forceRestart && canDismiss) {
+      toast('⚠️ Si fuerzas reinicio, el usuario NO puede cerrar el popup', 'error');
+      return;
+    }
+    
+    let expiresAt = null;
+    if (days > 0) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      expiresAt = d.toISOString();
+    }
+    
+    try {
+      await apiPost('announcements', {
+        message: message,
+        type: type,
+        is_active: true,
+        expires_at: expiresAt,
+        display_style: displayStyle,
+        can_dismiss: canDismiss,
+        force_restart: forceRestart
+      });
+      
+      toast('✅ Anuncio publicado');
+      document.getElementById('ann-message').value = '';
+      document.getElementById('ann-days').value = '0';
+      await loadAnnouncements();
+    } catch (e) {
+      toast('Error: ' + e.message, 'error');
+    }
+  }
+
+  async function toggleAnnouncement(id, active) {
+    try {
+      await apiPatch(`announcements?id=eq.${id}`, { is_active: active });
+      toast(active ? 'Anuncio activado' : 'Anuncio desactivado');
+      await loadAnnouncements();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  async function deleteAnnouncement(id) {
+    if (!confirm('¿Eliminar este anuncio?')) return;
+    try {
+      await apiDelete(`announcements?id=eq.${id}`);
+      toast('Anuncio eliminado');
+      await loadAnnouncements();
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  }
+
+  // ============================================================
+  // MANTENIMIENTO
+  // ============================================================
+  function showMaintenanceModal() {
+    const root = document.getElementById('modal-root');
+    root.innerHTML = `
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">🚧 Modo Mantenimiento</div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Estado actual</label>
+              <div style="padding:12px;background:var(--bg3);border-radius:10px;font-size:13px;font-weight:700;color:${currentMaintenance.mode ? 'var(--danger)' : 'var(--success)'}">
+                ${currentMaintenance.mode ? '🔴 MANTENIMIENTO ACTIVO' : '🟢 SERVICIO NORMAL'}
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:16px">
+              <label>Mensaje</label>
+              <textarea id="maintenance-msg" rows="3" style="resize:vertical;font-family:inherit">${escapeHtml(currentMaintenance.message || '')}</textarea>
+            </div>
+          </div>
+          <div class="modal-actions">
+            ${currentMaintenance.mode 
+              ? `<button class="btn btn-success" onclick="toggleMaintenance(false)">✓ DESACTIVAR</button>`
+              : `<button class="btn btn-danger" onclick="toggleMaintenance(true)">🚧 ACTIVAR</button>`
+            }
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function toggleMaintenance(active) {
+    const msg = document.getElementById('maintenance-msg').value.trim() 
+      || 'El servicio está en mantenimiento. Vuelve pronto.';
+    
+    try {
+      await apiPatch('app_config?id=eq.1', {
+        maintenance_mode: active,
+        maintenance_message: msg,
+        updated_at: new Date().toISOString()
+      });
+      toast(active ? 'Mantenimiento activado' : 'Mantenimiento desactivado');
+      closeModal();
+      await loadKeys();
+    } catch (e) {
+      toast('Error: ' + e.message, 'error');
+    }
+  }
+
+  function updateMaintenanceUI() {
+    const btn = document.getElementById('maintenance-btn');
+    const banner = document.getElementById('maintenance-banner');
+    const bannerMsg = document.getElementById('maintenance-banner-msg');
+    
+    if (currentMaintenance.mode) {
+      btn.classList.add('active');
+      btn.innerHTML = '🔴 MANTENIMIENTO ACTIVO';
+      banner.classList.remove('hidden');
+      bannerMsg.textContent = currentMaintenance.message || 'El servicio está en mantenimiento.';
+    } else {
+      btn.classList.remove('active');
+      btn.innerHTML = '🚧 MANTENIMIENTO';
+      banner.classList.add('hidden');
+    }
+  }
+
+  // ============================================================
+  // EXPORTAR
+  // ============================================================
+  function exportCSV() {
+    const rows = [['Key', 'Label', 'Estado', 'Expira', 'Dispositivos', 'Creada']];
+    allKeys.forEach(k => {
+      rows.push([
+        k.key_value,
+        k.label || '',
+        getKeyStatus(k).label,
+        formatDate(k.expires_at),
+        `${keyDevices[k.id]?.length || 0}/${k.max_devices || 1}`,
+        formatDate(k.created_at)
+      ]);
+    });
+    const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    download(csv, 'keys.csv', 'text/csv');
+  }
+
+  function exportTXT() {
+    const txt = allKeys.map(k => 
+      `${k.key_value} | ${getKeyStatus(k).label} | Expira: ${formatDate(k.expires_at)}`
+    ).join('\n');
+    download(txt, 'keys.txt', 'text/plain');
+  }
+
+  function download(content, filename, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+    toast('Descargado: ' + filename);
+  }
+
+  // ============================================================
+  // EVENTOS
+  // ============================================================
+  document.getElementById('btn-generate').onclick = generateKeys;
+  
+  document.getElementById('search').oninput = (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    if (!q) { renderKeys(allKeys); return; }
+    const filtered = allKeys.filter(k => 
+      k.key_value.toLowerCase().includes(q) ||
+      (k.label || '').toLowerCase().includes(q) ||
+      getKeyStatus(k).label.toLowerCase().includes(q)
+    );
+    renderKeys(filtered);
+  };
+
+  document.getElementById('search-patches').oninput = (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    if (!q) { renderPatches(allPatches); return; }
+    const filtered = allPatches.filter(p => 
+      p.display_name.toLowerCase().includes(q) ||
+      p.patch_filename.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q)
+    );
+    renderPatches(filtered);
+  };
+
+  // Cargar al abrir
+  loadKeys();
+  
+  setInterval(loadKeys, 3000);
+</script>
+</body>
+</html>

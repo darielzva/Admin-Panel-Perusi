@@ -943,6 +943,211 @@
   .reset-days-box.show { display: block; }
   .btn-reset-confirm { width: 100%; }
   .btn-reset-confirm:disabled { opacity: 0.4; cursor: not-allowed; filter: none; transform: none; box-shadow: none; }
+
+  /* ===== VENTANAS DE CONFIRMACIÓN (reemplazan confirm/prompt/alert del navegador) ===== */
+  .toast-container { z-index: 4000 !important; }
+  #dialog-root { position: relative; z-index: 3000; }
+  .dlg-overlay {
+    position: fixed; inset: 0; z-index: 3000; display: flex; align-items: center; justify-content: center;
+    padding: 20px; background: rgba(0,0,0,0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    animation: fadeIn 0.15s ease;
+  }
+  .dlg {
+    width: 100%; max-width: 380px; background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 20px; padding: 24px 20px 18px; text-align: center;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.6); animation: dlgPop 0.2s cubic-bezier(.2,.9,.3,1.2);
+  }
+  @keyframes dlgPop { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .dlg-icon {
+    width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 50%; font-size: 26px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(34,211,107,0.12); border: 1px solid rgba(34,211,107,0.35);
+  }
+  .dlg.danger .dlg-icon { background: rgba(255,59,78,0.12); border-color: rgba(255,59,78,0.4); }
+  .dlg-title { font-size: 16px; font-weight: 800; letter-spacing: 0.4px; margin-bottom: 8px; word-break: break-word; }
+  .dlg-msg { font-size: 13px; color: var(--text2); line-height: 1.5; white-space: pre-line; word-break: break-word; }
+  .dlg input {
+    width: 100%; margin-top: 14px; text-align: left; font-size: 16px; min-height: 46px;
+  }
+  .dlg-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .dlg-actions .btn { flex: 1; min-height: 46px; padding: 12px; font-size: 12px; }
+  .btn-dlg-danger {
+    background: linear-gradient(135deg, #ff5b6b, #e0192e); color: #fff;
+    box-shadow: 0 6px 18px rgba(255,59,78,0.35);
+  }
+  .btn-dlg-ok {
+    background: linear-gradient(135deg, #2ee27a, #12b858); color: #04100a;
+    box-shadow: 0 6px 18px rgba(34,211,107,0.35);
+  }
+  .btn-dlg-danger:hover, .btn-dlg-ok:hover { filter: brightness(1.08); }
+  @media (max-width: 380px) { .dlg-actions { flex-direction: column-reverse; } }
+
+  /* ===== PANTALLA COMPLETA EN LA IPA: respetar notch / isla dinámica / bordes ===== */
+  body {
+    padding-top: calc(12px + env(safe-area-inset-top)) !important;
+    padding-left: max(12px, env(safe-area-inset-left)) !important;
+    padding-right: max(12px, env(safe-area-inset-right)) !important;
+  }
+  @media (min-width: 721px) {
+    body { padding-top: calc(32px + env(safe-area-inset-top)) !important;
+           padding-left: max(24px, env(safe-area-inset-left)) !important;
+           padding-right: max(24px, env(safe-area-inset-right)) !important; }
+  }
+  html, body { overscroll-behavior-y: none; }
+
+  /* =====================================================================
+     GLASSMORPHISM + MÓVIL CÓMODO
+     ===================================================================== */
+  :root {
+    --glass-bg: rgba(255,255,255,0.055);
+    --glass-bg-2: rgba(255,255,255,0.085);
+    --glass-border: rgba(255,255,255,0.13);
+    --glass-hi: inset 0 1px 0 rgba(255,255,255,0.14);
+    --glass-blur: blur(22px) saturate(1.6);
+  }
+
+  /* Luces de fondo que se ven a través del vidrio */
+  body::before, body::after {
+    content: ''; position: fixed; z-index: -1; border-radius: 50%;
+    filter: blur(80px); pointer-events: none;
+  }
+  body::before { width: 460px; height: 460px; top: -140px; left: -140px; background: rgba(34,211,107,0.30); }
+  body::after  { width: 500px; height: 500px; bottom: -180px; right: -160px; background: rgba(255,59,78,0.26); }
+
+  /* Superficies de vidrio */
+  .card, .stat-card, .patch-row {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-hi), 0 12px 40px rgba(0,0,0,0.35);
+  }
+  .table-container { background: rgba(0,0,0,0.18); border-color: var(--glass-border); }
+  thead { background: rgba(255,255,255,0.05); }
+  .modal {
+    background: rgba(16,22,25,0.78);
+    border: 1px solid var(--glass-border);
+    -webkit-backdrop-filter: blur(30px) saturate(1.6); backdrop-filter: blur(30px) saturate(1.6);
+    box-shadow: var(--glass-hi), 0 24px 70px rgba(0,0,0,0.6);
+  }
+  .dlg {
+    background: rgba(16,22,25,0.78);
+    border: 1px solid var(--glass-border);
+    -webkit-backdrop-filter: blur(30px) saturate(1.6); backdrop-filter: blur(30px) saturate(1.6);
+    box-shadow: var(--glass-hi), 0 24px 70px rgba(0,0,0,0.6);
+  }
+  .toast {
+    background: rgba(16,22,25,0.80);
+    -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  }
+  input, select, textarea {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    border-radius: 12px;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: rgba(34,211,107,0.7) !important;
+    box-shadow: 0 0 0 3px rgba(34,211,107,0.18);
+  }
+  .btn { -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+         box-shadow: inset 0 1px 0 rgba(255,255,255,0.10); }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 8px 24px rgba(34,211,107,0.38); }
+
+  /* Pestañas: icono + texto */
+  .tab { display: inline-flex; align-items: center; gap: 8px; }
+  .tab-ic { font-size: 16px; line-height: 1; }
+
+  /* Filtros rápidos */
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 14px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; padding: 10px 16px; border-radius: 999px; font-family: inherit;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.4px; color: var(--text2); cursor: pointer;
+    background: var(--glass-bg); border: 1px solid var(--glass-border); box-shadow: var(--glass-hi);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    transition: all .15s;
+  }
+  .chip.active {
+    color: #eafff2; border-color: rgba(34,211,107,0.55);
+    background: linear-gradient(135deg, rgba(34,211,107,0.30), rgba(34,211,107,0.10));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 18px rgba(34,211,107,0.25);
+  }
+
+  /* ---------------------------- MÓVIL ---------------------------- */
+  @media (max-width: 720px) {
+    body { padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important; }
+
+    /* BARRA INFERIOR flotante de vidrio, botones grandes */
+    .tabs {
+      left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom));
+      padding: 8px; gap: 8px; border: 1px solid var(--glass-border); border-radius: 30px;
+      background: rgba(255,255,255,0.07);
+      -webkit-backdrop-filter: blur(30px) saturate(1.8); backdrop-filter: blur(30px) saturate(1.8);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 14px 44px rgba(0,0,0,0.6);
+    }
+    .tab {
+      flex: 1; min-height: 62px; flex-direction: column; justify-content: center; gap: 4px;
+      padding: 8px 4px; border-radius: 22px; font-size: 11px; letter-spacing: 0.8px;
+      border: 1px solid transparent; color: var(--text2);
+    }
+    .tab-ic { font-size: 24px; }
+    .tab.active {
+      color: #eafff2; border: 1px solid rgba(34,211,107,0.5);
+      background: linear-gradient(135deg, rgba(34,211,107,0.30), rgba(34,211,107,0.10));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 0 26px rgba(34,211,107,0.28);
+    }
+
+    /* Botones más grandes en todo el panel */
+    .btn { min-height: 50px; font-size: 12px; border-radius: 14px; }
+    .btn-sm { min-height: 50px; padding: 12px 10px; font-size: 12px; border-radius: 14px; }
+    .search-bar .btn { min-height: 50px; }
+    tr[data-key-id] .actions .btn,
+    .patch-row .actions .btn { min-height: 54px; font-size: 12px; border-radius: 14px; }
+    .btn-primary { min-height: 56px; font-size: 14px; bottom: calc(100px + env(safe-area-inset-bottom)); }
+    .modal-close { width: 44px; height: 44px; }
+    .dlg-actions .btn { min-height: 52px; }
+
+    /* Encabezado y estadísticas más compactos */
+    .stat-card { padding: 12px 14px; border-radius: 16px; }
+    .stat-label { font-size: 9px; }
+    .stat-value { font-size: 24px; }
+    .card { border-radius: 20px; }
+
+    /* Tarjetas plegables */
+    .card[data-collapsible] .card-header {
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      min-height: 44px; margin-bottom: 14px; -webkit-user-select: none; user-select: none;
+    }
+    .card[data-collapsible] .card-header::after {
+      content: '▾'; font-size: 18px; color: var(--accent); transition: transform .2s;
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: rgba(255,255,255,0.07); border: 1px solid var(--glass-border);
+    }
+    .card.collapsed > *:not(.card-header) { display: none; }
+    .card.collapsed .card-header { margin-bottom: 0; }
+    .card.collapsed .card-header::after { transform: rotate(-90deg); }
+
+    /* Tarjetas de key de vidrio */
+    tr[data-key-id] {
+      background: var(--glass-bg-2); border: 1px solid var(--glass-border); border-radius: 20px;
+      box-shadow: var(--glass-hi), 0 8px 28px rgba(0,0,0,0.30);
+    }
+    tr[data-key-id] td.c-actions { background: rgba(0,0,0,0.20); border-top: 1px solid var(--glass-border); }
+    .key-code { font-size: 16px; }
+    .patch-row, .patch-row[style] { border-radius: 20px; padding: 16px; }
+    .patch-name { font-size: 15px; }
+
+    /* Campos del formulario más cómodos */
+    input, select, textarea { min-height: 50px; border-radius: 14px; }
+    .form-group label { font-size: 10px; }
+    .reset-opt, .chip { min-height: 52px; }
+    .chip { min-height: 44px; }
+  }
+
+  @media (min-width: 721px) {
+    .tab { padding: 12px 20px; }
+  }
 </style>
 </head>
 <body>
@@ -972,9 +1177,9 @@
 
     <!-- TABS (sin Opciones) -->
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('keys')">🔑 Keys</button>
-      <button class="tab" onclick="switchTab('patches')">📦 Parches</button>
-      <button class="tab" onclick="switchTab('announcements')">📢 Anuncios</button>
+      <button class="tab active" onclick="switchTab('keys')"><span class="tab-ic">🔑</span><span class="tab-tx">Keys</span></button>
+      <button class="tab" onclick="switchTab('patches')"><span class="tab-ic">📦</span><span class="tab-tx">Parches</span></button>
+      <button class="tab" onclick="switchTab('announcements')"><span class="tab-ic">📢</span><span class="tab-tx">Anuncios</span></button>
     </div>
 
     <!-- ============================================ -->
@@ -1001,9 +1206,9 @@
       </div>
 
       <!-- GENERADOR -->
-      <div class="card">
+      <div class="card" data-collapsible>
         <div class="card-header">
-          <div class="card-title">Generador de Keys</div>
+          <div class="card-title">⚡ Generador de Keys</div>
         </div>
         <div class="form-grid">
           <div class="form-group">
@@ -1052,6 +1257,14 @@
           <button class="btn btn-ghost btn-sm" onclick="loadKeys()">↻ Refresh</button>
         </div>
 
+        <div class="chips" id="key-chips">
+          <button type="button" class="chip active" data-q="">Todas</button>
+          <button type="button" class="chip" data-q="activa">✅ Activas</button>
+          <button type="button" class="chip" data-q="congelada">❄️ Congeladas</button>
+          <button type="button" class="chip" data-q="baneada">🚫 Baneadas</button>
+          <button type="button" class="chip" data-q="expirada">⌛ Expiradas</button>
+        </div>
+
         <div class="table-container">
           <table>
             <thead>
@@ -1095,7 +1308,7 @@
       </div>
 
       <!-- AÑADIR PARCHE -->
-      <div class="card">
+      <div class="card" data-collapsible>
         <div class="card-header">
           <div class="card-title">➕ Añadir Nuevo Parche</div>
         </div>
@@ -1108,7 +1321,7 @@
             <label>Categoría</label>
             <select id="patch-category">
               <option value="aimbot">Aimbot</option>
-              <option value="hologramas">Hologramas</option>
+              <option value="hologramas">Holo Armas</option>
               <option value="holo_pj">Holo PJ</option>
             </select>
           </div>
@@ -1178,7 +1391,7 @@
     <!-- TAB: ANUNCIOS -->
     <!-- ============================================ -->
     <div class="tab-content" id="tab-announcements">
-      <div class="card">
+      <div class="card" data-collapsible>
         <div class="card-header">
           <div class="card-title">➕ Añadir Anuncio Global</div>
         </div>
@@ -1252,6 +1465,7 @@
 
   <!-- MODAL ROOT -->
   <div id="modal-root"></div>
+  <div id="dialog-root"></div>
 
 <script>
   // ============================================================
@@ -1379,7 +1593,8 @@
   function switchTab(tab) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    event.target.classList.add('active');
+    (event.currentTarget || event.target.closest('.tab')).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     document.getElementById('tab-' + tab).classList.add('active');
     
     if (tab === 'patches') loadPatches();
@@ -1442,8 +1657,96 @@
     setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
   }
 
+  // ============================================================
+  // VENTANAS PROPIAS (confirm / prompt) — funcionan en Safari, Documents y en la IPA
+  // ============================================================
+  function _openDialog({ icon, title, message, confirmText, cancelText, danger, input }) {
+    return new Promise(resolve => {
+      const el = document.createElement('div');
+      el.className = 'dlg-overlay';
+      el.innerHTML = `
+        <div class="dlg ${danger ? 'danger' : ''}" role="dialog" aria-modal="true">
+          <div class="dlg-icon">${icon}</div>
+          <div class="dlg-title">${escapeHtml(title)}</div>
+          ${message ? `<div class="dlg-msg">${escapeHtml(message)}</div>` : ''}
+          ${input ? `<input type="text" id="dlg-input" autocomplete="off" autocapitalize="off"
+                      value="${escapeHtml(input.value || '')}" placeholder="${escapeHtml(input.placeholder || '')}">` : ''}
+          <div class="dlg-actions">
+            <button type="button" class="btn btn-ghost" data-act="cancel">${escapeHtml(cancelText)}</button>
+            <button type="button" class="btn ${danger ? 'btn-dlg-danger' : 'btn-dlg-ok'}" data-act="ok">${escapeHtml(confirmText)}</button>
+          </div>
+        </div>`;
+
+      const field = el.querySelector('#dlg-input');
+      const finish = ok => {
+        document.removeEventListener('keydown', onKey, true);
+        const value = field ? field.value : null;
+        el.remove();
+        resolve(input ? (ok ? value : null) : ok);
+      };
+      const onKey = e => {
+        if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+        else if (e.key === 'Enter' && field) { e.preventDefault(); finish(true); }
+      };
+      el.addEventListener('click', e => {
+        if (e.target === el) return finish(false);
+        const act = e.target.closest('[data-act]')?.dataset.act;
+        if (act) finish(act === 'ok');
+      });
+      document.addEventListener('keydown', onKey, true);
+      document.getElementById('dialog-root').appendChild(el);
+      if (field) { field.focus(); field.select(); }
+    });
+  }
+
+  /** Pregunta Aceptar/Cancelar. Devuelve true o false. */
+  function askConfirm(opts = {}) {
+    return _openDialog({
+      icon: '❓', title: '¿Estás seguro?', message: '', confirmText: 'Aceptar',
+      cancelText: 'Cancelar', danger: false, ...opts
+    });
+  }
+
+  /** Pide un texto. Devuelve el texto o null si se cancela. */
+  function askPrompt(opts = {}) {
+    return _openDialog({
+      icon: '✏️', title: 'Escribe un valor', message: '', confirmText: 'Aceptar',
+      cancelText: 'Cancelar', danger: false, input: { value: opts.value || '', placeholder: opts.placeholder || '' }, ...opts
+    });
+  }
+
+  // ============================================================
+  // PUENTE CON LA APP iOS (si se abre dentro de la IPA)
+  // ============================================================
+  const NativeBridge = {
+    get available() {
+      return !!(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.native);
+    },
+    post(msg) { window.webkit.messageHandlers.native.postMessage(msg); }
+  };
+
+  function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;font-size:16px';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    ok ? done() : toast('No se pudo copiar', 'error');
+  }
+
   function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => toast('Copiado'));
+    const done = () => toast('Copiado');
+    if (NativeBridge.available) { NativeBridge.post({ action: 'copy', text }); return done(); }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+      fallbackCopy(text, done);
+    }
   }
 
   function closeModal() {
@@ -1829,7 +2132,10 @@ ${key.key_value}
   }
 
   async function banIP(keyId, deviceId) {
-    if (!confirm('¿Banear esta IP?')) return;
+    if (!await askConfirm({
+      icon: '🚫', title: 'Banear IP', danger: true, confirmText: 'Banear',
+      message: '¿Banear esta IP?\n\nSe elimina de la lista de dispositivos de la key.'
+    })) return;
     try {
       await apiDelete(`key_devices?id=eq.${deviceId}`);
       toast('IP baneada');
@@ -1841,7 +2147,10 @@ ${key.key_value}
   }
 
   async function banKey(id) {
-    if (!confirm('¿Banear esta key?')) return;
+    if (!await askConfirm({
+      icon: '🚫', title: 'Banear key', danger: true, confirmText: 'Banear',
+      message: '¿Banear esta key?\n\nEl usuario perderá el acceso de inmediato.'
+    })) return;
     try {
       await apiPatch(`keys?id=eq.${id}`, { is_banned: true });
       toast('Key baneada');
@@ -1986,8 +2295,10 @@ ${key.key_value}
       }
     }
 
-    if (choice === 'full' &&
-        !confirm(`¿Resetear la key completa "${key.key_value}"?\n\nSe borran sus dispositivos y vuelve como nueva.`)) {
+    if (choice === 'full' && !await askConfirm({
+      icon: '♻️', title: 'Resetear key completa', danger: true, confirmText: 'Resetear',
+      message: `¿Resetear la key completa "${key.key_value}"?\n\nSe borran sus dispositivos y vuelve como nueva.`
+    })) {
       return;
     }
 
@@ -2038,7 +2349,10 @@ ${key.key_value}
   }
 
   async function deleteKey(id, keyValue) {
-    if (!confirm(`¿Eliminar "${keyValue}"?`)) return;
+    if (!await askConfirm({
+      icon: '🗑️', title: 'Eliminar key', danger: true, confirmText: 'Eliminar',
+      message: `¿Eliminar "${keyValue}"?`
+    })) return;
     try {
       await apiDelete(`keys?id=eq.${id}`);
       toast('Key eliminada');
@@ -2082,7 +2396,7 @@ ${key.key_value}
     container.innerHTML = patches.map(patch => {
       const icon = getIconEmoji(patch.icon);
       const modeText = { normal: 'FF Normal', max: 'FF MAX', both: 'Ambos' }[patch.mode] || patch.mode;
-      const categoryText = { aimbot: 'Aimbot', hologramas: 'Hologramas', holo_pj: 'Holo PJ' }[patch.category] || patch.category;
+      const categoryText = { aimbot: 'Aimbot', hologramas: 'Holo Armas', holo_pj: 'Holo PJ' }[patch.category] || patch.category;
       const isBlocked = patch.is_blocked;
       const isActive = patch.is_active;
       
@@ -2245,7 +2559,11 @@ ${key.key_value}
 
   async function togglePatchBlocked(id, blocked) {
     if (blocked) {
-      const msg = prompt('Mensaje de bloqueo que verá el usuario:', 'En mantenimiento. Vuelve pronto.');
+      const msg = await askPrompt({
+        icon: '🔒', title: 'Bloquear parche', confirmText: 'Bloquear',
+        message: 'Mensaje de bloqueo que verá el usuario:',
+        value: 'En mantenimiento. Vuelve pronto.'
+      });
       if (msg === null) return;
       
       try {
@@ -2290,7 +2608,7 @@ ${key.key_value}
                 <label>Categoría</label>
                 <select id="edit-patch-category">
                   <option value="aimbot" ${patch.category === 'aimbot' ? 'selected' : ''}>Aimbot</option>
-                  <option value="hologramas" ${patch.category === 'hologramas' ? 'selected' : ''}>Hologramas</option>
+                  <option value="hologramas" ${patch.category === 'hologramas' ? 'selected' : ''}>Holo Armas</option>
                   <option value="holo_pj" ${patch.category === 'holo_pj' ? 'selected' : ''}>Holo PJ</option>
                 </select>
               </div>
@@ -2415,7 +2733,10 @@ ${key.key_value}
     
     const newFilename = replaceFile.name.replace(/\.3105$/i, '');
     if (newFilename !== patch.patch_filename) {
-      if (!confirm(`⚠️ El nombre del archivo NO coincide:\n\nActual: ${patch.patch_filename}.3105\nNuevo: ${replaceFile.name}\n\n¿Quieres continuar? El archivo se subirá con el nombre ORIGINAL para mantener compatibilidad.`)) {
+      if (!await askConfirm({
+        icon: '⚠️', title: 'El nombre no coincide', confirmText: 'Continuar',
+        message: `Actual: ${patch.patch_filename}.3105\nNuevo: ${replaceFile.name}\n\n¿Quieres continuar? El archivo se subirá con el nombre ORIGINAL para mantener compatibilidad.`
+      })) {
         return;
       }
     }
@@ -2443,7 +2764,10 @@ ${key.key_value}
     const patch = allPatches.find(p => p.id === id);
     if (!patch) return;
     
-    if (!confirm(`¿Eliminar el parche "${patch.display_name}"?\n\nSe borrará:\n- El archivo del Storage\n- El registro de la base de datos\n\nLos usuarios dejarán de verlo al reiniciar la app.`)) return;
+    if (!await askConfirm({
+      icon: '🗑️', title: 'Eliminar parche', danger: true, confirmText: 'Eliminar',
+      message: `¿Eliminar el parche "${patch.display_name}"?\n\nSe borrará:\n- El archivo del Storage\n- El registro de la base de datos\n\nLos usuarios dejarán de verlo al reiniciar la app.`
+    })) return;
     
     try {
       try {
@@ -2600,7 +2924,10 @@ ${key.key_value}
   }
 
   async function deleteAnnouncement(id) {
-    if (!confirm('¿Eliminar este anuncio?')) return;
+    if (!await askConfirm({
+      icon: '🗑️', title: 'Eliminar anuncio', danger: true, confirmText: 'Eliminar',
+      message: '¿Eliminar este anuncio?'
+    })) return;
     try {
       await apiDelete(`announcements?id=eq.${id}`);
       toast('Anuncio eliminado');
@@ -2705,11 +3032,19 @@ ${key.key_value}
   }
 
   function download(content, filename, type) {
+    // Dentro de la IPA: abre la hoja de compartir/guardar de iOS
+    if (NativeBridge.available) {
+      NativeBridge.post({ action: 'saveFile', filename, mime: type, content });
+      return;
+    }
     const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
     toast('Descargado: ' + filename);
   }
 
@@ -2717,6 +3052,30 @@ ${key.key_value}
   // EVENTOS
   // ============================================================
   document.getElementById('btn-generate').onclick = generateKeys;
+
+  // Tarjetas plegables en celular (el generador y los formularios arrancan cerrados)
+  (function initCollapsibles() {
+    const mq = window.matchMedia('(max-width: 720px)');
+    document.querySelectorAll('.card[data-collapsible]').forEach(card => {
+      const head = card.querySelector('.card-header');
+      head.addEventListener('click', () => { if (mq.matches) card.classList.toggle('collapsed'); });
+      if (mq.matches) card.classList.add('collapsed');
+    });
+  })();
+
+  // Filtros rápidos de keys (usan el mismo buscador)
+  (function initChips() {
+    const chips = [...document.querySelectorAll('#key-chips .chip')];
+    const input = document.getElementById('search');
+    chips.forEach(ch => ch.addEventListener('click', () => {
+      input.value = ch.dataset.q;
+      input.dispatchEvent(new Event('input'));
+    }));
+    input.addEventListener('input', () => {
+      const q = input.value.toLowerCase().trim();
+      chips.forEach(c => c.classList.toggle('active', c.dataset.q === q));
+    });
+  })();
   
   document.getElementById('search').oninput = (e) => {
     const q = e.target.value.toLowerCase().trim();

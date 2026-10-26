@@ -1,0 +1,48 @@
+name: Build Admin Panel IPA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "AdminPanel/**"
+      - ".github/workflows/build-admin-ipa.yml"
+
+jobs:
+  build:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: AdminPanel
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar XcodeGen
+        run: brew install xcodegen
+
+      - name: Generar proyecto Xcode
+        run: xcodegen generate
+
+      - name: Compilar (sin firmar)
+        run: |
+          xcodebuild archive \
+            -project AdminPanel.xcodeproj \
+            -scheme AdminPanel \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath build/AdminPanel.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Crear IPA
+        run: |
+          mkdir -p build/Payload
+          cp -R build/AdminPanel.xcarchive/Products/Applications/AdminPanel.app build/Payload/
+          cd build && zip -qry AdminPanel.ipa Payload
+
+      - name: Subir IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: AdminPanel-ipa
+          path: AdminPanel/build/AdminPanel.ipa
